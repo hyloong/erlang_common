@@ -1,0 +1,12 @@
+# ignore file
+
+#ebin
+ebin/
+
+# log
+logs/
+
+GTAGS
+GPATH
+GRTAGS
+TAGS
