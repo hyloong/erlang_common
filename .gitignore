@@ -1,5 +1,8 @@
 # ignore file
 
+erl_crash.dump
+*/erl_crash.dump
+
 #ebin
 ebin/
 
