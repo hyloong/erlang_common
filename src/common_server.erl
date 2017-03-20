@@ -53,7 +53,6 @@ start_link() ->
 init([]) ->
     process_flag(trap_exit, true),
     db_sql:start_link(),
-    test_server:start_link([{from_pid, self()}]),
     timer:sleep(1000),
     {ok, #state{}}.
 

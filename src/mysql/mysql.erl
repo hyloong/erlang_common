@@ -499,7 +499,7 @@ init([PoolId, Host, Port, User, Password, Database, LogFun, Encoding]) ->
                             Database, Encoding),
             State = #state{log_fun = LogFun1},
             NewState = add_conn(Conn, State),
-            io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, NewState]),
+            %% io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, NewState]),
             {ok, NewState};
         {error, Reason} ->
             ?Log(LogFun1, error,

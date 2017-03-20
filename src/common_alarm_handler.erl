@@ -77,10 +77,11 @@ delete_alarm_handler(Module) when is_atom(Module) ->
 init(_) -> {ok, []}.
 
 handle_event({set_alarm, Alarm}, Alarms)->
-    error_logger:info_report([{alarm_handler, {set, Alarm}}]),
+    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, [Alarm]]),
+    error_logger:info_report([{common_alarm_handler, {set, Alarm}}]),
     {ok, [Alarm | Alarms]};
 handle_event({clear_alarm, AlarmId}, Alarms)->
-    error_logger:info_report([{alarm_handler, {clear, AlarmId}}]),
+    error_logger:info_report([{common_alarm_handler, {clear, AlarmId}}]),
     {ok, lists:keydelete(AlarmId, 1, Alarms)};
 handle_event(_, Alarms)->
     {ok, Alarms}.
@@ -91,6 +92,7 @@ handle_call(get_alarms, Alarms) -> {ok, Alarms, Alarms};
 handle_call(_Query, Alarms)     -> {ok, {error, bad_query}, Alarms}.
 
 terminate(swap, Alarms) ->
-    {alarm_handler, Alarms};
+    {common_alarm_handler, Alarms};
+
 terminate(_, _) ->
     ok.

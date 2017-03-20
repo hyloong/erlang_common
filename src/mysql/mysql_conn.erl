@@ -424,7 +424,7 @@ do_query(State, Query) ->
 
 do_query(Sock, RecvPid, LogFun, Query, Version) ->
     Query1 = iolist_to_binary(Query),
-    ?Log2(LogFun, debug, "fetch ~p (id ~p)", [Query1,RecvPid]),
+    %% ?Log2(LogFun, debug, "fetch ~p (id ~p)", [Query1,RecvPid]),
     Packet =  <<?MYSQL_QUERY_OP, Query1/binary>>,
     case do_send(Sock, Packet, 0, LogFun) of
         ok ->
@@ -618,10 +618,10 @@ greeting(Packet, LogFun) ->
     <<Caps:16/little, Rest5/binary>> = Rest4,
     <<ServerChar:16/binary-unit:8, Rest6/binary>> = Rest5,
     {Salt2, _Rest7} = asciz(Rest6),
-    ?Log2(LogFun, debug,
-          "greeting version ~p (protocol ~p) salt ~p caps ~p serverchar ~p"
-          "salt2 ~p",
-          [Version, Protocol, Salt, Caps, ServerChar, Salt2]),
+    %% ?Log2(LogFun, debug,
+    %%       "greeting version ~p (protocol ~p) salt ~p caps ~p serverchar ~p"
+    %%       "salt2 ~p",
+    %%       [Version, Protocol, Salt, Caps, ServerChar, Salt2]),
     {normalize_version(Version, LogFun), Salt, Salt2, Caps}.
 
 %% part of greeting/2

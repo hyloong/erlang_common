@@ -23,9 +23,7 @@ start()->
 start_apps(App)->
     case application:start(App) of 
         ok -> ok;
-        {error, R} ->
-            io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, R]),
-            erlang:throw({error, R})
+        {error, R} -> erlang:throw({error, R})
     end.
             
         

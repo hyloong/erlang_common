@@ -34,10 +34,13 @@
 %% @end
 %%--------------------------------------------------------------------
 start(_StartType, _StartArgs) ->
-    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, here1]),
     case common_sup:start_link() of
         {ok, Pid} ->
-            io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, here2]),
+            %% case application:get_env(common, log_level) of 
+            %%     undefined -> LogLevel = 5;
+            %%     {ok, LogLevel} -> ok 
+            %% end,
+            common_server_base:start(),
             {ok, Pid};
         Error ->
             Error

@@ -183,8 +183,8 @@ password_new(Password, Salt) ->
     bxor_binary(Res, Stage1).
 
 
-do_send(Sock, Packet, Num, LogFun) ->
-    LogFun(?MODULE, ?LINE, debug,
-	   fun() -> {"mysql_auth send packet ~p: ~p", [Num, Packet]} end),
+do_send(Sock, Packet, Num, _LogFun) ->
+    %% LogFun(?MODULE, ?LINE, debug,
+	%%    fun() -> {"mysql_auth send packet ~p: ~p", [Num, Packet]} end),
     Data = <<(size(Packet)):24/little, Num:8, Packet/binary>>,
     gen_tcp:send(Sock, Data).

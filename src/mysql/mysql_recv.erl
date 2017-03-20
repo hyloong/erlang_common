@@ -164,7 +164,7 @@ sendpacket(Parent, Data) ->
     case Data of
         <<Length:24/little, Num:8, D/binary>> ->
             %% 
-            io:format("~p ~p Send to mysql conn data=~p~n", [?MODULE, ?LINE, [Length, Num]]),
+            %% io:format("~p ~p Send to mysql conn data=~p~n", [?MODULE, ?LINE, [Length, Num]]),
             if
                 Length =< size(D) -> %% check the recv date is complete
                     {Packet, Rest} = split_binary(D, Length),
