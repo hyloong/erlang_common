@@ -19,5 +19,9 @@ start()->
       common_sup, {common_login_fsm, 
                    {common_login_fsm, start_link, []},
                    permanent, 5000, worker, [common_login_fsm]}),
-
+    
+    supervisor:start_child(
+      common_sup, {common_sup_test,
+                   {common_sup_test, start_link, []},
+                   permanent, 5000, supervisor, [common_sup_test]}),    
     ok.

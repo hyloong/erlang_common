@@ -17,7 +17,8 @@
 -export([init/1, state_name/2, state_name/3, handle_event/3,
          handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
 
--define(SERVER, ?MODULE).
+
+-record(state, {timer = [], count = 0}).
 
 %%%===================================================================
 %%% API
@@ -38,7 +39,7 @@ delete_online_count()->
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
-    gen_fsm:start_link({local, ?SERVER}, ?MODULE, [], []).
+    gen_fsm:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 %%%===================================================================
 %%% gen_fsm callbacks
@@ -61,8 +62,8 @@ init([]) ->
     process_flag(trap_exit, true),
     {_H, M, _S} = erlang:time(),
     Time = max(3600-M*60, 1)*1000,
-    io:format("~p ~p Time=~p~n", [?MODULE, ?LINE, Time]),
-    {ok, wait, [0], Time}.
+    Timer = gen_fsm:send_event_after(Time, log_to_db),
+    {ok, wait, #state{count = 0, timer = Timer}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -80,24 +81,24 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 wait({add_online_count}, State)->
-    [N] = State,
-    io:format("~p ~p State=~p~n", [?MODULE, ?LINE, State]),
-    {_H, M, _S} = erlang:time(),
-    Time = max(3600-M*60, 1)*1000,
-    {next_state, wait, [N+1], Time};
+    #state{count = Count} = State,
+    {next_state, wait, State#state{count = Count+1}};
 
 wait({delete_online_count}, State)->
-    [N] = State,
-    io:format("~p ~p State=~p~n", [?MODULE, ?LINE, State]),
-    {_H, M, _S} = erlang:time(),
-    Time = max(3600-M*60, 1)*1000,
-    {next_state, wait, [max(0, N-1)], Time};
+    #state{count = Count} = State,
+    {next_state, wait, State#state{count = Count-1}};
+
+wait(log_to_db, State) ->
+    #state{timer = OTimer, count = Count} = State,
+    Time = 3600*1000,
+    log_online_num(Count),
+    erlang:cancel_timer(OTimer),
+    Timer = gen_fsm:send_event_after(Time, log_to_db),
+    {next_state, wait, State#state{timer = Timer}, Time};
 
 wait(_Event, State) ->
-    Time = 3600*1000,
-    log_online_num(State),
-    io:format("~p ~p State=~p~n", [?MODULE, ?LINE, State]),
-    {next_state, wait, State, Time}.
+    {next_state, wait, State}.
+
 
 state_name(_Event, State) ->
     {next_state, state_name, State}.
@@ -207,6 +208,6 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 %%%===================================================================
 
 log_online_num(State)->
-    [_OnlineNum] = State,
+    _OnlineNum = State,
     do_insert.
     

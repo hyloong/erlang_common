@@ -4,9 +4,9 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created : 20 Mar 2017 by root <root@localhost.heller>
+%%% Created : 21 Mar 2017 by root <root@localhost.heller>
 %%%-------------------------------------------------------------------
--module(common_tcp_listener).
+-module(common_test1).
 
 -behaviour(gen_server).
 
@@ -18,8 +18,6 @@
          terminate/2, code_change/3]).
 
 -compile(export_all).
-
--include("common.hrl").
 
 %%====================================================================
 %% API
@@ -34,9 +32,8 @@ start_link() ->
 
 %%--------------------------------------------------------------------
 init([]) ->
-    {ok, LSocket} = gen_tcp:listen(5200, ?TCP_OPTIONS),
-    
-    {ok, LSocket}.
+    io:format("~p ~p N=~w~n", [?MODULE, ?LINE, 111]),
+    {ok, []}.
 
 %%--------------------------------------------------------------------
 handle_call(_Request, From, State) ->

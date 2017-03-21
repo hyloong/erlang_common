@@ -4,14 +4,14 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created : 20 Mar 2017 by root <root@localhost.heller>
+%%% Created : 21 Mar 2017 by root <root@localhost.heller>
 %%%-------------------------------------------------------------------
--module(common_tcp_listener).
+-module(common_test).
 
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -19,24 +19,21 @@
 
 -compile(export_all).
 
--include("common.hrl").
-
 %%====================================================================
 %% API
 %%====================================================================
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server:start_link({global, ?MODULE}, ?MODULE, [], []).
+start_link(N) ->
+    gen_server:start_link({global, ?MODULE}, ?MODULE, [N], []).
 
 %%====================================================================
 %% gen_server callbacks
 %%====================================================================
 
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, LSocket} = gen_tcp:listen(5200, ?TCP_OPTIONS),
-    
-    {ok, LSocket}.
+init([N]) ->
+    io:format("~p ~p N=~w~n", [?MODULE, ?LINE, N]),
+    {ok, [N]}.
 
 %%--------------------------------------------------------------------
 handle_call(_Request, From, State) ->
