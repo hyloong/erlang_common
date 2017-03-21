@@ -11,15 +11,17 @@
 -behaviour(gen_event).
 
 %% API
--export([start_link/0, add_handler/0]).
+-export([start_link/0, add_handler/0, add_handler/1]).
 
 %% gen_event callbacks
 -export([init/1, handle_event/2, handle_call/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--define(SERVER, ?MODULE).
-
--record(state, {}).
+-record(state, {
+          level = 0,
+          file = [],
+          fd = []
+         }).
 
 %%%===================================================================
 %%% API
@@ -33,7 +35,13 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
-    gen_event:start_link({local, ?SERVER}).
+    case gen_event:start_link({local, ?MODULE}) of 
+        {ok, Pid} ->
+            %% add_handler(),
+            {ok, Pid};
+        Res ->
+            Res 
+    end.
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -43,7 +51,14 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 add_handler() ->
-    gen_event:add_handler(?SERVER, ?MODULE, []).
+    gen_event:add_handler(?MODULE, ?MODULE, []).
+
+
+add_handler(File) ->
+    gen_event:add_handler(?MODULE, ?MODULE, [File]).
+
+%% set_level(Level)->
+%%     gen_event:notify(?MODULE, {set_level, Level}).
 
 %%%===================================================================
 %%% gen_event callbacks
@@ -58,8 +73,9 @@ add_handler() ->
 %% @spec init(Args) -> {ok, State}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init(File) ->
+    {ok, Fd} = file:open(File, [append, raw]),
+    {ok, #state{fd = Fd, file = File}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -74,7 +90,14 @@ init([]) ->
 %%                          remove_handler
 %% @end
 %%--------------------------------------------------------------------
-handle_event(_Event, State) ->
+%% handle_event({set_level, Level}, State)->
+%%     {ok, State#state{level = Level}};
+
+handle_event({F, A}, State) -> 
+    #state{fd = Fd} = State,
+    file:write(Fd, io_lib:format(F, A)),
+    {ok, State};
+handle_event(_Event, State) -> 
     {ok, State}.
 
 %%--------------------------------------------------------------------

@@ -62,7 +62,7 @@ init([]) ->
     {_H, M, _S} = erlang:time(),
     Time = max(3600-M*60, 1)*1000,
     io:format("~p ~p Time=~p~n", [?MODULE, ?LINE, Time]),
-    {ok, wait, [0], 5000}.
+    {ok, wait, [0], Time}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -84,20 +84,20 @@ wait({add_online_count}, State)->
     io:format("~p ~p State=~p~n", [?MODULE, ?LINE, State]),
     {_H, M, _S} = erlang:time(),
     Time = max(3600-M*60, 1)*1000,
-    {next_state, wait, [N+1], 5000};
+    {next_state, wait, [N+1], Time};
 
 wait({delete_online_count}, State)->
     [N] = State,
     io:format("~p ~p State=~p~n", [?MODULE, ?LINE, State]),
     {_H, M, _S} = erlang:time(),
     Time = max(3600-M*60, 1)*1000,
-    {next_state, wait, [max(0, N-1)], 5000};
+    {next_state, wait, [max(0, N-1)], Time};
 
 wait(_Event, State) ->
     Time = 3600*1000,
     log_online_num(State),
     io:format("~p ~p State=~p~n", [?MODULE, ?LINE, State]),
-    {next_state, wait, State, 5000}.
+    {next_state, wait, State, Time}.
 
 state_name(_Event, State) ->
     {next_state, state_name, State}.

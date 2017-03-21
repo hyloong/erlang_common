@@ -29,10 +29,10 @@
 
 
 start()->
-    mysql:start(?DB, "127.0.0.1", 3306, "root", "123456", "xmzy").
+    mysql:start(?DB, "127.0.0.1", 3306, "root", "123456", "test").
 
 start_link()->
-    mysql:start_link(?DB, "127.0.0.1", 3306, "root", "123456", "xmzy").
+    mysql:start_link(?DB, "127.0.0.1", 3306, "root", "123456", "test").
 
 
 %% 执行一个SQL查询,返回影响的行数

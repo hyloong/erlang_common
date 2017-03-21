@@ -36,10 +36,14 @@
 start(_StartType, _StartArgs) ->
     case common_sup:start_link() of
         {ok, Pid} ->
-            %% case application:get_env(common, log_level) of 
-            %%     undefined -> LogLevel = 5;
-            %%     {ok, LogLevel} -> ok 
-            %% end,
+            {ok, _LogLevel} = application:get_env(common, log_level),
+            {ok, LogPath} = application:get_env(common, log_path),
+            File = filename:join(LogPath, get_file_name()),
+            %% io:format("~p ~p File=~p~n", [?MODULE, ?LINE, File]),
+            %% common_loglevel:set(LogLevel),
+            %% error_logger:add_report_handler(common_logger_h, File),
+            common_file_logger:start_link(),
+            common_file_logger:add_handler(File),
             common_server_base:start(),
             {ok, Pid};
         Error ->
@@ -62,3 +66,6 @@ stop(_State) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+get_file_name()->
+    {{Y,M,D},_} = calendar:local_time(),
+    lists:concat(["sys_alarm_", Y, "_", M, "_", D, ".txt"]).

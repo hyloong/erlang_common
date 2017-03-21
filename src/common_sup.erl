@@ -58,6 +58,9 @@ init([]) ->
     %% AChild = {common_server,
     %%           {common_server, start_link, []},
     %%           permanent, 5000, worker, [common_server]},
+
+    
+
     {ok, {SupFlags, []}}.
 
 %%%===================================================================
