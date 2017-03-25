@@ -14,14 +14,19 @@ start()->
       common_sup, {common_server, 
                    {common_server, start_link, []},
                    permanent, 5000, worker, [common_server]}),
-    
+
     supervisor:start_child(
       common_sup, {common_login_fsm, 
                    {common_login_fsm, start_link, []},
                    permanent, 5000, worker, [common_login_fsm]}),
-    
+
     supervisor:start_child(
       common_sup, {common_sup_test,
                    {common_sup_test, start_link, []},
-                   permanent, 5000, supervisor, [common_sup_test]}),    
+                   permanent, 5000, supervisor, [common_sup_test]}),
+
+    supervisor:start_child(
+      common_sup, {common_tcp_server,
+                   {common_tcp_server, start_link, []},
+                   permanent, 5000, worker, [common_tcp_server]}),
     ok.
