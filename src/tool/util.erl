@@ -8,19 +8,19 @@
 %%%-------------------------------------------------------------------
 -module(util).
 
-%% -export(to_float/1).
+-export([
+         to_float/2
+        ]).
 
-%% to_float(F, N) when is_list(F), is_integer(N) ->
-%%     to_float1(F, N);
-%% to_float(F, N) when is_float(F), is_integer(N) ->
-    
-%%     to_float1(F, N);
+-include("common.hrl").
 
-%%     float_to_list(,[{decimals,0}]).
-
-
-%% float_to_list(223.44456,[{decimals,6}]).        
-
-
-%% float_to_list(223.44456,[{decimals,6},compact]).       
+to_float(Float, Sub) when is_integer(Float) -> 
+    F = float_to_binary(float(Float), [{decimals, Sub}]),
+    binary_to_float(F);
+to_float(Float, Sub) when is_float(Float) ->
+    F = float_to_binary(Float, [{decimals, Sub}]),
+    binary_to_float(F);
+to_float(Float, _) -> 
+    ?ERR("~p~n", [Float]),
+    Float.
 
