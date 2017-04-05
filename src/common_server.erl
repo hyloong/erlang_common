@@ -11,7 +11,11 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/0, test_info/1]).
+
+-compile(export_all).
+
+-include("common.hrl").
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -33,7 +37,16 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+    gen_server2:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+test_info(0)->
+    gen_server2:cast(?MODULE, {sum, 10}),
+    %% ?DEBUG("ProcessInfo:~p~n", [erlang:process_info(whereis(?MODULE))]),
+    ok;
+test_info(N)->
+    gen_server2:cast(?MODULE, {sum, 10}),
+    test_info(N-1).
+
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -54,7 +67,8 @@ init([]) ->
     process_flag(trap_exit, true),
     db_sql:start_link(),
     timer:sleep(1000),
-    {ok, #state{}}.
+    %% {ok, State, Timeout, Backoff = {backoff, _, _, _}}
+    {ok, #state{}, hibernate, {backoff, 1000, 1000, 1000}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -70,6 +84,7 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+
 handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
@@ -84,6 +99,11 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_cast({sum, Num}, State)->
+    %% timer:sleep(2000),
+    Reply = sum(Num),
+    io:format("~p ~p Reply=~p~n", [?MODULE, ?LINE, Reply]),
+    {noreply, State, hibernate};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -120,12 +140,31 @@ terminate(_Reason, _State) ->
 %% @doc
 %% Convert process state when code is changed
 %%
-%% @spec code_change(OldVsn, State, Extra) -> {ok, NewState}
-%% @end
+%% @spec code_change(OldVsn, State, Extra) -> {ok, NewState}%
+% @end
 %%--------------------------------------------------------------------
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+handle_pre_hibernate(State) ->
+    {hibernate, State}.
+
+%% {noreply, NState}| {noreply, NState, Time}
+handle_post_hibernate(State) ->
+    {noreply, State}.
+
+%% 设置执行优先级
+prioritise_call(_Msg, _From, _Len, _State) -> 0.
+
+prioritise_cast(_Msg, _Len, _State) -> 0.
+
+prioritise_info(_Msg, _Len, _State) -> 0.
+    
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+sum(Num)-> sum(Num, 0).
+sum(0, T) -> T;
+sum(Num, T)-> sum(Num-1, T+Num).
+    

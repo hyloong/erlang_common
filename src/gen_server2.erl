@@ -4,19 +4,19 @@
 %% 1) the module name is gen_server2
 %%
 %% 2) more efficient handling of selective receives in callbacks
-%% gen_server2 processes drain their message queue into an internal
-%% buffer before invoking any callback module functions. Messages are
+%% gen_server2 processes drain(消耗) their message queue into an internal
+%% buffer before invoking(调用) any callback module functions. Messages are
 %% dequeued from the buffer for processing. Thus the effective message
-%% queue of a gen_server2 process is the concatenation of the internal
+%% queue of a gen_server2 process is the concatenation(串联) of the internal
 %% buffer and the real message queue.
 %% As a result of the draining, any selective receive invoked inside a
 %% callback is less likely to have to scan a large message queue.
 %%
-%% 3) gen_server2:cast is guaranteed to be order-preserving
-%% The original code could reorder messages when communicating with a
+%% 3) gen_server2:cast is guaranteed(保证) to be order-preserving
+%% The original(原始) code could reorder messages when communicating with a
 %% process on a remote node that was not currently connected.
 %%
-%% 4) The callback module can optionally implement prioritise_call/4,
+%% 4) The callback module can optionally implement(选择性执行) prioritise(优选权)_call/4,
 %% prioritise_cast/3 and prioritise_info/3.  These functions take
 %% Message, From, Length and State or just Message, Length and State
 %% (where Length is the current number of messages waiting to be
@@ -26,65 +26,61 @@
 %% higher priorities are processed before requests with lower
 %% priorities. The default priority is 0.
 %%
-%% 5) The callback module can optionally implement
-%% handle_pre_hibernate/1 and handle_post_hibernate/1. These will be
-%% called immediately prior to and post hibernation, respectively. If
-%% handle_pre_hibernate returns {hibernate, NewState} then the process
-%% will hibernate. If the module does not implement
-%% handle_pre_hibernate/1 then the default action is to hibernate.
+%% 5) The callback module can optionally implement 能够选择执行
+%% handle_pre_hibernate/1(休眠之前执行) and handle_post_hibernate/1. These will be
+%% called immediately prior(能够优先执行) to and post hibernation, respectively(分别地).
+%% If handle_pre_hibernate returns {hibernate, NewState} then the process will hibernate.
+%% If the module does not implement handle_pre_hibernate/1 then the default action is to hibernate.
 %%
-%% 6) init can return a 4th arg, {backoff, InitialTimeout,
-%% MinimumTimeout, DesiredHibernatePeriod} (all in milliseconds,
-%% 'infinity' does not make sense here). Then, on all callbacks which
-%% can return a timeout (including init), timeout can be
-%% 'hibernate'. When this is the case, the current timeout value will
-%% be used (initially, the InitialTimeout supplied from init). After
-%% this timeout has occurred, hibernation will occur as normal. Upon
-%% awaking, a new current timeout value will be calculated.
+%% 6) init can return a 4th arg,
+%% {backoff, InitialTimeout, MinimumTimeout, Desired(渴望的)Hibernate(休眠)Period(周期)}
+%% (all in milliseconds, 'infinity' does not make sense here,没有意义).
+%% Then, on all callbacks which can return a timeout (including init), 所有的回调函数都可以返回一个timeout,timeout的值可以是hibernate
+%% timeout can be 'hibernate'.
+%% When this is the case, the current timeout value will be used (initially(最初), the InitialTimeout supplied from init).
+%% After this timeout has occurred, hibernation will occur as normal.
+%% Upon awaking, a new current timeout value will be calculated.
 %%
-%% The purpose is that the gen_server2 takes care of adjusting the
-%% current timeout value such that the process will increase the
+%% The purpose is that the gen_server2 takes care of adjusting the(负责调整当前的超时值)
+%% current timeout value such that the process will increase the (如果在渴望休眠的周期时间内，不能休眠，gen_server2会负责增加当前的超时值)
 %% timeout value repeatedly if it is unable to sleep for the
-%% DesiredHibernatePeriod. If it is able to sleep for the
-%% DesiredHibernatePeriod it will decrease the current timeout down to
-%% the MinimumTimeout, so that the process is put to sleep sooner (and
-%% hopefully stays asleep for longer). In short, should a process
-%% using this receive a burst of messages, it should not hibernate
-%% between those messages, but as the messages become less frequent,
-%% the process will not only hibernate, it will do so sooner after
-%% each message.
+%% DesiredHibernatePeriod. 
+%% If it is able to sleep for the DesiredHibernatePeriod it will decrease the current timeout down to(减少)
+%% the MinimumTimeout,
+%% so that the process is put to sleep sooner (and hopefully stays asleep for longer).
+%% In short(简单说), should a process using this receive a burst(爆炸) of messages,
+%% it should not hibernate between those messages,
+%% but as the messages become less frequent(不频繁),
+%% the process will not only hibernate, it will do so sooner after each message.
 %%
-%% When using this backoff mechanism, normal timeout values (i.e. not
-%% 'hibernate') can still be used, and if they are used then the
-%% handle_info(timeout, State) will be called as normal. In this case,
-%% returning 'hibernate' from handle_info(timeout, State) will not
+%% When using this backoff mechanism(避让机制),
+%% normal timeout values (i.e. not 'hibernate') can still be used, and if they are used then the
+%% handle_info(timeout, State) will be called as normal.
+%% In this case, returning 'hibernate' from handle_info(timeout, State) will not
 %% hibernate the process immediately, as it would if backoff wasn't
 %% being used. Instead it'll wait for the current timeout as described
 %% above.
 %%
-%% 7) The callback module can return from any of the handle_*
-%% functions, a {become, Module, State} triple, or a {become, Module,
-%% State, Timeout} quadruple. This allows the gen_server to
-%% dynamically change the callback module. The State is the new state
-%% which will be passed into any of the callback functions in the new
-%% module. Note there is no form also encompassing a reply, thus if
-%% you wish to reply in handle_call/3 and change the callback module,
+%% 7) The callback module can return from any of the handle_* functions, 任何回调函数handle_*都能够返回值
+%% a {become, Module, State} triple(三个一组), or a {become, Module, State, Timeout} quadruple(四倍).
+%% This allows the gen_server to dynamically change the callback module. 能够动态的改变回调模块
+%% The State is the new state which will be passed into any of the callback functions in the new module. 
+%% Note there is no form(没有任何方式) also encompassing(包含) a reply, thus if you wish to reply in handle_call/3 and change the callback module,
 %% you need to use gen_server2:reply/2 to issue the reply manually.
+%% 如果返回{become, x, x},需要返回值，就手动调用gen_server2:reply
 %%
 %% 8) The callback module can optionally implement
-%% format_message_queue/2 which is the equivalent of format_status/2
-%% but where the second argument is specifically the priority_queue
-%% which contains the prioritised message_queue.
-%%
-%% 9) The function with_state/2 can be used to debug a process with
-%% heavyweight state (without needing to copy the entire state out of
+%% format_message_queue/2 which is the equivalent(等价) of format_status/2
+%% but where the second argument is specifically(具体地) the priority_queue
+%% which contains the prioritised message_queue) The function with_state/2 can be used to debug a process with
+%% heavyweight(重量级的) state (without needing to copy the entire(整个) state out of
 %% process as sys:get_status/1 would). Pass through a function which
 %% can be invoked on the state, get back the result. The state is not
 %% modified.
 %%
-%% 10) an mcall/1 function has been added for performing multiple
-%% call/3 in parallel. Unlike multi_call, which sends the same request
-%% to same-named processes residing on a supplied list of nodes, it
+%% 10) an mcall/1 function has been added for performing(执行) multiple
+%% call/3 in parallel(平行线). Unlike multi_call, which sends the same request
+%% to same-named processes residing(属于) on a supplied list of nodes, it
 %% operates on name/request pairs, where name is anything accepted by
 %% call/3, i.e. a pid, global name, local name, or local name on a
 %% particular node.
@@ -99,7 +95,7 @@
 %% retrieved via the world wide web at http://www.erlang.org/.
 %%
 %% Software distributed under the License is distributed on an "AS IS"
-%% basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+%% basis, WITHOUT WARRANTY(保修) OF ANY KIND, either express or implied. See
 %% the License for the specific language governing rights and limitations
 %% under the License.
 %%
@@ -190,7 +186,6 @@
 %%%
 %%%
 %%% ---------------------------------------------------
-
 %% API
 -export([start/3, start/4,
          start_link/3, start_link/4,
@@ -212,6 +207,8 @@
 -export([init_it/6]).
 
 -import(error_logger, [format/2]).
+
+-include("common.hrl").
 
 %% State record
 -record(gs2_state, {parent, name, state, mod, time,
@@ -544,14 +541,18 @@ init_it(Starter, self, Name, Mod, Args, Options) ->
 init_it(Starter, Parent, Name0, Mod, Args, Options) ->
     Name = name(Name0),
     Debug = debug_options(Name, Options),
+
+    %% {queue, [], [], 0}
     Queue = priority_queue:new(),
+
+    %% 消息优先级设置函数，call不能丢弃，cast和info可以
     GS2State = find_prioritisers(
                  #gs2_state { parent  = Parent,
                               name    = Name,
                               mod     = Mod,
                               queue   = Queue,
                               debug   = Debug }),
-    case catch Mod:init(Args) of
+    case catch Mod:init(Args) of %% 
         {ok, State} ->
             proc_lib:init_ack(Starter, {ok, self()}),
             loop(GS2State #gs2_state { state         = State,
@@ -562,8 +563,8 @@ init_it(Starter, Parent, Name0, Mod, Args, Options) ->
             loop(GS2State #gs2_state { state         = State,
                                        time          = Timeout,
                                        timeout_state = undefined });
-        {ok, State, Timeout, Backoff = {backoff, _, _, _}} ->
-            Backoff1 = extend_backoff(Backoff),
+        {ok, State, Timeout, Backoff = {backoff, _, _, _}} -> %% 使用避让机制 mark
+            Backoff1 = extend_backoff(Backoff), %% 加多一个现在时间now().
             proc_lib:init_ack(Starter, {ok, self()}),
             loop(GS2State #gs2_state { state         = State,
                                        time          = Timeout,
@@ -619,22 +620,25 @@ extend_backoff({backoff, InitialTimeout, MinimumTimeout, DesiredHibPeriod}) ->
 %%% ---------------------------------------------------
 %%% The MAIN loop.
 %%% ---------------------------------------------------
-loop(GS2State = #gs2_state { time          = hibernate,
+loop(GS2State = #gs2_state { time          = hibernate,         %% mark 当超时值是hibernate
                              timeout_state = undefined }) ->
     pre_hibernate(GS2State);
 loop(GS2State) ->
     process_next_msg(drain(GS2State)).
 
+%% 消耗邮箱的消息，存放到进程状态中的消息队列中，并且设置优先值，或者drop
 drain(GS2State) ->
     receive
-        Input -> drain(in(Input, GS2State))
-    after 0 -> GS2State
+        Input ->
+            drain(in(Input, GS2State))
+    after 0 ->
+            GS2State
     end.
 
 process_next_msg(GS2State = #gs2_state { time          = Time,
                                          timeout_state = TimeoutState,
                                          queue         = Queue }) ->
-    case priority_queue:out(Queue) of
+    case priority_queue:out(Queue) of %% get msg
         {{value, Msg}, Queue1} ->
             process_msg(Msg, GS2State #gs2_state { queue = Queue1 });
         {empty, Queue1} ->
@@ -670,6 +674,7 @@ process_next_msg(GS2State = #gs2_state { time          = Time,
             end
     end.
 
+%% 休眠苏醒 TS = {now(), BackOffState}
 wake_hib(GS2State = #gs2_state { timeout_state = TS }) ->
     TimeoutState1 = case TS of
                         undefined ->
@@ -677,34 +682,42 @@ wake_hib(GS2State = #gs2_state { timeout_state = TS }) ->
                         {SleptAt, TimeoutState} ->
                             adjust_timeout_state(SleptAt, now(), TimeoutState)
                     end,
-    post_hibernate(
-      drain(GS2State #gs2_state { timeout_state = TimeoutState1 })).
+    %% 休眠苏醒后执行
+    post_hibernate(drain(GS2State #gs2_state { timeout_state = TimeoutState1 })).
 
+%% 进入休眠，当有消息来的时候wake
 hibernate(GS2State = #gs2_state { timeout_state = TimeoutState }) ->
     TS = case TimeoutState of
              undefined             -> undefined;
              {backoff, _, _, _, _} -> {now(), TimeoutState}
          end,
-    proc_lib:hibernate(?MODULE, wake_hib,
-                       [GS2State #gs2_state { timeout_state = TS }]).
+    %% 函数进入等待唤醒
+    %% 把请求进程放进等待状态，然后等待分配的内存尽可能的减少。对于一个不想接受消息的进程来说很重要。
+    %% 当有消息进入的时候就会被唤醒
+    %% 抛弃call stack，然后gc进程，经过上面的处理，所有存活的数据都在一个连续堆里面
+    %% 如果存活的数据大小，小于最小堆的大小，当进程被唤醒之后第一次gc会触发，确保堆的大小于堆的大小
+    %% 清空call stack 意味着任何环境下的catch都会被移除，必须重新插入被唤醒后
+    proc_lib:hibernate(?MODULE, wake_hib, [GS2State #gs2_state { timeout_state = TS }]).
 
+%% 休眠处理
 pre_hibernate(GS2State = #gs2_state { state   = State,
                                       mod     = Mod }) ->
-    case erlang:function_exported(Mod, handle_pre_hibernate, 1) of
+    case erlang:function_exported(Mod, handle_pre_hibernate, 1) of %% 函数实在回调模块中定义
         true ->
-            case catch Mod:handle_pre_hibernate(State) of
+            case catch Mod:handle_pre_hibernate(State) of %% 休眠前处理
                 {hibernate, NState} ->
-                    hibernate(GS2State #gs2_state { state = NState } );
+                    hibernate(GS2State #gs2_state { state = NState } ); %% 进入休眠
                 Reply ->
                     handle_common_termination(Reply, pre_hibernate, GS2State)
             end;
         false ->
-            hibernate(GS2State)
+            hibernate(GS2State) %% 进入休眠
     end.
 
+%% 苏醒后执行
 post_hibernate(GS2State = #gs2_state { state = State,
                                        mod   = Mod }) ->
-    case erlang:function_exported(Mod, handle_post_hibernate, 1) of
+    case erlang:function_exported(Mod, handle_post_hibernate, 1) of %% 在回调模块中定义
         true ->
             case catch Mod:handle_post_hibernate(State) of
                 {noreply, NState} ->
@@ -726,13 +739,16 @@ post_hibernate(GS2State = #gs2_state { state = State,
             process_next_msg(GS2State #gs2_state { time = hibernate })
     end.
 
+%% 调整休眠时间
 adjust_timeout_state(SleptAt, AwokeAt, {backoff, CurrentTO, MinimumTO,
                                         DesiredHibPeriod, RandomState}) ->
+    %% 休眠的时间点，苏醒的时间点
     NapLengthMicros = timer:now_diff(AwokeAt, SleptAt),
+    %% 
     CurrentMicros = CurrentTO * 1000,
     MinimumMicros = MinimumTO * 1000,
     DesiredHibMicros = DesiredHibPeriod * 1000,
-    GapBetweenMessagesMicros = NapLengthMicros + CurrentMicros,
+    GapBetweenMessagesMicros = NapLengthMicros + CurrentMicros, %% 真正休眠的时间和设置的当前超时时间
     Base =
         %% If enough time has passed between the last two messages then we
         %% should consider sleeping sooner. Otherwise stay awake longer.
@@ -744,6 +760,7 @@ adjust_timeout_state(SleptAt, AwokeAt, {backoff, CurrentTO, MinimumTO,
     CurrentTO1 = Base + Extra,
     {backoff, CurrentTO1, MinimumTO, DesiredHibPeriod, RandomState1}.
 
+%% 设置消息的优先级系数
 in({'$gen_cast', Msg} = Input,
    GS2State = #gs2_state { prioritisers = {_, F, _} }) ->
     in(Input, F(Msg, GS2State), GS2State);
@@ -1035,7 +1052,7 @@ handle_common_reply(Reply, Msg, GS2State = #gs2_state { name  = Name,
             loop(GS2State #gs2_state {state = NState,
                                       time  = Time1,
                                       debug = Debug1});
-        {become, Mod, NState} ->
+        {become, Mod, NState} -> %% 改变回调模块
             Debug1 = common_become(Name, Mod, NState, Debug),
             loop(find_prioritisers(
                    GS2State #gs2_state { mod   = Mod,
@@ -1264,8 +1281,9 @@ whereis_name(Name) ->
     [] -> undefined
     end.
 
+%% 设置优先级处理的函数，在回调模块定义
 find_prioritisers(GS2State = #gs2_state { mod = Mod }) ->
-    PCall = function_exported_or_default(Mod, 'prioritise_call', 4,
+    PCall = function_exported_or_default(Mod, 'prioritise_call', 4, 
                                          fun (_Msg, _From, _State) -> 0 end),
     PCast = function_exported_or_default(Mod, 'prioritise_cast', 3,
                                          fun (_Msg, _State) -> 0 end),
@@ -1274,13 +1292,15 @@ find_prioritisers(GS2State = #gs2_state { mod = Mod }) ->
     GS2State #gs2_state { prioritisers = {PCall, PCast, PInfo} }.
 
 function_exported_or_default(Mod, Fun, Arity, Default) ->
-    case erlang:function_exported(Mod, Fun, Arity) of
+    case erlang:function_exported(Mod, Fun, Arity) of %% 判断函数是否有导出
         true -> case Arity of
                     3 -> fun (Msg, GS2State = #gs2_state { queue = Queue,
                                                            state = State }) ->
                                  Length = priority_queue:len(Queue),
-                                 case catch Mod:Fun(Msg, Length, State) of
-                                     drop ->
+                                 %% 执行完后，可以丢弃消息或者设置消息的优先级
+                                 %% 消息太长也可以丢弃
+                                 case catch Mod:Fun(Msg, Length, State) of 
+                                     drop -> 
                                          drop;
                                      Res when is_integer(Res) ->
                                          Res;
@@ -1290,7 +1310,8 @@ function_exported_or_default(Mod, Fun, Arity, Default) ->
                          end;
                     4 -> fun (Msg, From, GS2State = #gs2_state { queue = Queue,
                                                                  state = State }) ->
-                                 Length = priority_queue:len(Queue),
+                                 Length = priority_queue:len(Queue), 
+                                 %% call的消息不能丢弃
                                  case catch Mod:Fun(Msg, From, Length, State) of
                                      Res when is_integer(Res) ->
                                          Res;

@@ -113,9 +113,9 @@ init([]) ->
 %%--------------------------------------------------------------------
 %% 初始化检查check
 check(repeat, State)->
-    %% {_H, M, _S} = erlang:time(),
-    %% Time = max(3600-M*60, 1)*1000,
-    Time = 20000,
+    {_H, M, _S} = erlang:time(),
+    Time = max(3600-M*60, 1)*1000,
+    %% Time = 20000,
     io:format("~p ~p check to wait state time=~p~n", [?MODULE, ?LINE, [Time]]),
     Timer = gen_fsm:send_event_after(Time, log_to_db),
     {next_state, wait, State#state{timer = Timer}};
