@@ -48,3 +48,9 @@ fib(0) -> 1;
 fib(1) -> 1;  
 fib(N) -> fib(N-1) + fib(N-2).  
 busy()-> fib(10), busy(). 
+
+
+get_time()->
+    erlang:now().
+
+
