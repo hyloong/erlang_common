@@ -31,6 +31,7 @@ test_smsg(Name)->
     test_smsg(Name, String).
 
 test_smsg(Name, String)->
+    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, []]),
     gen_server:cast(?MODULE, {test_smsg, Name, String}).
 
 %%====================================================================
@@ -90,7 +91,9 @@ do_handle_call(_Request, _From, State)->
     {reply, ok, State}.
 
 do_handle_cast({test_smsg, Name, String}, State)->
+    io:format("~p ~p Name=~p~n", [?MODULE, ?LINE, Name]),
     rpc:cast(Name, common_test_node, test_smsg, [node(), String]),
+    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, []]),
     {noreply, State};
 
 do_handle_cast(_Msg, State)->
