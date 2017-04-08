@@ -82,17 +82,8 @@ start_link() ->
 %%                     {stop, StopReason}
 %% @end
 %%--------------------------------------------------------------------
-%% init([]) ->
-%%     process_flag(trap_exit, true),
-%%     {_H, M, _S} = erlang:time(),
-%%     Time = max(3600-M*60, 1)*1000,
-%%     Timer = gen_fsm:send_event_after(Time, log_to_db),
-%%     {ok, wait, #state{count = 0, timer = Timer}}.
-
 init([]) ->
     process_flag(trap_exit, true),
-    %% {_H, M, _S} = erlang:time(),
-    %% Time = max(3600-M*60, 1)*1000,
     Timer = gen_fsm:send_event_after(10, repeat),
     {ok, check, #state{count = 0, timer = Timer}}.
 
@@ -115,24 +106,19 @@ init([]) ->
 check(repeat, State)->
     {_H, M, _S} = erlang:time(),
     Time = max(3600-M*60, 1)*1000,
-    %% Time = 20000,
-    io:format("~p ~p check to wait state time=~p~n", [?MODULE, ?LINE, [Time]]),
     Timer = gen_fsm:send_event_after(Time, log_to_db),
     {next_state, wait, State#state{timer = Timer}};
 
 %% 超时触发的状态切换
 check(time_out, State) ->
-    %% {_H, M, _S} = erlang:time(),
-    %% Time = max(3600-M*60, 1)*1000,
-    Time = 20000,
-    io:format("~p ~p check to wait state time out=~p~n", [?MODULE, ?LINE, [Time]]),
+    {_H, M, _S} = erlang:time(),
+    Time = max(3600-M*60, 1)*1000,
     Timer = gen_fsm:send_event_after(Time, log_to_db),
     {next_state, wait, State#state{timer = Timer}}.
 
 %% 检查后的状态wait
 wait({add_online_count}, State)->
     #state{count = Count} = State,
-    io:format("~p ~p add_online_count1=~p~n", [?MODULE, ?LINE, Count]),
     {next_state, wait, State#state{count = Count+1}};
 
 %% 整点记录数据库,进入check
@@ -141,7 +127,6 @@ wait(log_to_db, State) ->
     log_online_num(Count),
     erlang:cancel_timer(OTimer),
     Timer = gen_fsm:send_event_after(10, repeat),
-    io:format("~p ~p wait to check state time =~w~n", [?MODULE, ?LINE, [10]]),
     {next_state, check, State#state{timer = Timer}}.
 
 %%--------------------------------------------------------------------
@@ -183,11 +168,9 @@ wait({delete_online_count}, _From, State)->
 %% @end
 %%--------------------------------------------------------------------
 handle_event({add_online_count_all}, StateName, State)->
-    io:format("~p ~p _Event, StateName=~p~n", [?MODULE, ?LINE, [{add_online_count_all}, StateName]]),
     {next_state, StateName, State};
 
 handle_event(_Event, StateName, State) ->
-    io:format("~p ~p _Event, StateName=~p~n", [?MODULE, ?LINE, [_Event, StateName]]),
     {next_state, StateName, State}.
 
 %%--------------------------------------------------------------------
@@ -207,7 +190,6 @@ handle_event(_Event, StateName, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_sync_event({delete_online_count_all}, _From, StateName, State) ->
-    io:format("~p ~p _Event, StateName=~p~n", [?MODULE, ?LINE, [{delete_online_count_all}, StateName]]),
     Reply = ok,
     {reply, Reply, StateName, State};
 

@@ -39,11 +39,8 @@ start(_StartType, _StartArgs) ->
             {ok, LogLevel} = application:get_env(common, log_level),
             {ok, LogPath} = application:get_env(common, log_path),
             File = filename:join(LogPath, get_file_name()),
-            %% io:format("~p ~p File=~p~n", [?MODULE, ?LINE, File]),
             common_loglevel:set(LogLevel),
             error_logger:add_report_handler(common_logger_h, File),
-            %% common_file_logger:start_link(),
-            %% common_file_logger:add_handler(File),
             common_server_base:start(),
             {ok, Pid};
         Error ->

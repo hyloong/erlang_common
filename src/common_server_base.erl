@@ -30,9 +30,4 @@ start()->
                    {common_tcp_server, start_link, []},
                    permanent, 5000, worker, [common_tcp_server]}),
 
-    supervisor:start_child(
-      common_sup, {common_test1,
-                   {common_test1, start_link, []},
-                   permanent, 5000, worker, [common_test1]}),
-
     ok.

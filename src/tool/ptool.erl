@@ -65,8 +65,17 @@ top_pinfo(Type, N)->
     do.
 
 
--compile({hhl, [iot/0]}).
+test_my_mod_fun(N)->
+    {T1, _} = timer:tc(ptool, test_use_mod_fun1, [N, self()]),
+    io:format("~p ~p T1=~w~n", [?MODULE, ?LINE, T1]).
+
+test_use_mod_fun1(0, _Pid) ->ok;
+test_use_mod_fun1(N, Pid) ->
+    %% pinfo(Pid, all),
+    fib(10),
+    test_use_mod_fun1(N-1, Pid).
 
 
-iot()->
-    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, [test]]).
+fib(0) -> 1;  
+fib(1) -> 1;  
+fib(N) -> fib(N-1) + fib(N-2).
