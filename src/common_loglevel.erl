@@ -102,25 +102,25 @@ get() -> "++ L ++".
 %% Helper functions
 test_msg(Module, Line, Format, Args) when " ++ L ++ " >= 6 ->
     notify(info_msg,
-           \"T(~p:~p:~p) : \"++Format++\"~n\",
+           \"~nT(~p:~p:~p) : \"++Format++\"~n\",
                    [self(), Module, Line]++Args);
 test_msg(_,_,_,_) -> ok.
 
 debug_msg(Module, Line, Format, Args) when " ++ L ++ " >= 5 ->
     notify(info_msg,
-           \"D(~p:~p:~p) : \"++Format++\"~n\",
+           \"~nD(~p:~p:~p) : \"++Format++\"~n\",
                    [self(), Module, Line]++Args);
 debug_msg(_,_,_,_) -> ok.
 
 info_msg(Module, Line, Format, Args) when " ++ L ++ " >= 4 ->
     notify(info_msg,
-           \"I(~p:~p:~p) : \"++Format++\"~n\",
+           \"~nI(~p:~p:~p) : \"++Format++\"~n\",
                    [self(), Module, Line]++Args);
 info_msg(_,_,_,_) -> ok.
 
 warning_msg(Module, Line, Format, Args) when " ++ L ++ " >= 3 ->
     notify(error,
-           \"W(~p:~p:~p) : \"++Format++\"~n\",
+           \"~nW(~p:~p:~p) : \"++Format++\"~n\",
                    [self(), Module, Line]++Args);
 warning_msg(_,_,_,_) -> ok.
 

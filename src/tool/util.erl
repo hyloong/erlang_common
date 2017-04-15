@@ -8,19 +8,50 @@
 %%%-------------------------------------------------------------------
 -module(util).
 
-%% -export(to_float/1).
 
-%% to_float(F, N) when is_list(F), is_integer(N) ->
-%%     to_float1(F, N);
-%% to_float(F, N) when is_float(F), is_integer(N) ->
+-compile(export_all).
+
+-include("common.hrl").
+
+%% 
+for(Max, Max, F)-> F();
+for(I, Max, F)-> 
+    F(),
+    for(I+1, Max, F).
     
-%%     to_float1(F, N);
 
-%%     float_to_list(,[{decimals,0}]).
+to_float(Float, Sub) when is_integer(Float) -> 
+    F = float_to_binary(float(Float), [{decimals, Sub}]),
+    binary_to_float(F);
+to_float(Float, Sub) when is_float(Float) ->
+    F = float_to_binary(Float, [{decimals, Sub}]),
+    binary_to_float(F);
+to_float(Float, _) -> 
+    ?ERR("~p~n", [Float]),
+    Float.
+
+%% 测试 r17
+%% +sub false|true：每个cpu都能动起来，实现负载均衡
+%% +scl false|true：优先让低Id的忙碌起来，如果不够，就让高位的cpu加入
+fib(0) -> 1;  
+fib(1) -> 1;  
+fib(N) -> fib(N-1) + fib(N-2).  
+busy()-> fib(10), busy(). 
 
 
-%% float_to_list(223.44456,[{decimals,6}]).        
+get_time()->
+    erlang:now().
 
 
-%% float_to_list(223.44456,[{decimals,6},compact]).       
+test_use_other_mod_fun(N)->
+    {T1, _} = timer:tc(util, test_use_other_mod_fun1, [N, self()]),
+    io:format("~p ~p T2=~w~n", [?MODULE, ?LINE, T1]).
+
+test_use_other_mod_fun1(0, _Pid) ->ok;
+test_use_other_mod_fun1(N, Pid) ->
+    ptool:fib(10),
+    test_use_other_mod_fun1(N-1, Pid).
+
+
+
 

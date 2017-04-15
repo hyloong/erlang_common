@@ -54,9 +54,6 @@ init([]) ->
     AChild = [{common_test, 
               {common_test, start_link, []},
               transient, brutal_kill, worker, [common_test]}],
-              %% {common_test1, 
-              %%  {common_test1, start_link, []},
-              %%  transient, brutal_kill, worker, [common_test1]}],
     {ok, {SupFlags, AChild}}.
 
 %%%===================================================================
