@@ -247,4 +247,4 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 log_online_num(State)->
     _OnlineNum = State,
     do_insert.
-    
+
