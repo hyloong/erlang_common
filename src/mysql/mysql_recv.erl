@@ -64,10 +64,10 @@
 %%           Reason  = atom() | string()
 %%--------------------------------------------------------------------
 start_link(Host, Port, LogFun, Parent) when is_list(Host), is_integer(Port) ->
-    RecvPid =
-        spawn_link(fun () ->
-                           init(Host, Port, LogFun, Parent)
-                   end),
+    %% Parent = mysql_conn-mod pid
+    RecvPid = spawn_link(fun () ->
+                                 init(Host, Port, LogFun, Parent)
+                         end),
     %% wait for the socket from the spawned pid
     %% mysql_conn 接受 mysql_recv进程消息
     receive
@@ -95,9 +95,8 @@ start_link(Host, Port, LogFun, Parent) when is_list(Host), is_integer(Port) ->
 %% Descrip.: Connect to Host:Port and then enter receive-loop.
 %% Returns : error | never returns
 %%--------------------------------------------------------------------
-init(Host, Port, LogFun, Parent) ->
-    %% 在mysql_recv进程链接mysql server ：sock
-    %% Parent 是 mysql_conn的进程id
+init(Host, Port, LogFun, Parent) -> 
+    %% Parent = mysql_conn-mod Pid
     case gen_tcp:connect(Host, Port, [binary, {packet, 0}]) of
         {ok, Sock} ->
             Parent ! {mysql_recv, self(), init, {ok, Sock}},

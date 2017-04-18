@@ -13,9 +13,6 @@
         ]).
 
 start()->
-    %% LogPath = "../logs/",
-    %% FileName = LogPath ++ get_file_name(),
-    %% file:open(FileName, [append]),
     Apps = [sasl, common],
     lists:map(fun(App)-> start_apps(App) end, Apps).
 
@@ -25,8 +22,3 @@ start_apps(App)->
         ok -> ok;
         {error, R} -> erlang:throw({error, R})
     end.
-
-
-%% get_file_name()->
-%%     {{Y,M,D},_} = calendar:local_time(),
-%%     lists:concat(["sys_alarm_", Y, "_", M, "_", D, ".txt"]).

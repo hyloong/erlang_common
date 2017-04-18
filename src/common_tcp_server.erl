@@ -11,7 +11,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -27,16 +27,16 @@
 %% API
 %%====================================================================
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server:start_link({global, ?MODULE}, ?MODULE, [], []).
+start_link(Port) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [Port], []).
 
 %%====================================================================
 %% gen_server callbacks
 %%====================================================================
 
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, ListenSocket} = gen_tcp:listen(?TCP_PORT, ?TCP_OPTIONS),
+init([Port]) ->
+    {ok, ListenSocket} = gen_tcp:listen(Port, ?TCP_OPTIONS),
     gen_server:cast(self(), accept1),
     %% gen_server:cast(self(), accept2),
     {ok, #tcp_state{lsock = ListenSocket}}.

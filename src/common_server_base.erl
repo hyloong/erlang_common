@@ -9,7 +9,7 @@
 
 -compile(export_all).
 
-start()->
+start(Port)->
     supervisor:start_child(
       common_sup, {common_server, 
                    {common_server, start_link, []},
@@ -27,12 +27,12 @@ start()->
 
     supervisor:start_child(
       common_sup, {common_tcp_server,
-                   {common_tcp_server, start_link, []},
+                   {common_tcp_server, start_link, [Port]},
                    permanent, 5000, worker, [common_tcp_server]}),
 
-    supervisor:start_child(
-      common_sup, {common_test_node,
-                   {common_test_node, start_link, []},
-                   permanent, 5000, worker, [common_test_node]}),
+    %% supervisor:start_child(
+    %%   common_sup, {common_test_node,
+    %%                {common_test_node, start_link, [1, 50000]},
+    %%                permanent, 5000, worker, [common_test_node]}),
 
     ok.

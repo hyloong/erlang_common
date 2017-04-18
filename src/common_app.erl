@@ -41,7 +41,9 @@ start(_StartType, _StartArgs) ->
             File = filename:join(LogPath, get_file_name()),
             common_loglevel:set(LogLevel),
             error_logger:add_report_handler(common_logger_h, File),
-            common_server_base:start(),
+            [Port |_] = init:get_plain_arguments(),
+            common_server_base:start(list_to_integer(Port)),
+            common_mysql:start_link(),
             {ok, Pid};
         Error ->
             Error

@@ -144,18 +144,17 @@
 %%           Reason = string()
 %%--------------------------------------------------------------------
 start(Host, Port, User, Password, Database, LogFun, Encoding, PoolId) ->
-    ConnPid = self(),
+    ConnPid = self(), %% mysql pid
+    %% 启动一个进程
     Pid = spawn(fun () ->
-                        init(Host, Port, User, Password, Database,
-                             LogFun, Encoding, PoolId, ConnPid)
+                        init(Host, Port, User, Password, Database, LogFun, Encoding, PoolId, ConnPid)
                 end),
     post_start(Pid, LogFun).
 
 start_link(Host, Port, User, Password, Database, LogFun, Encoding, PoolId) ->
     ConnPid = self(),
     Pid = spawn_link(fun () ->
-                             init(Host, Port, User, Password, Database,
-                                  LogFun, Encoding, PoolId, ConnPid)
+                             init(Host, Port, User, Password, Database, LogFun, Encoding, PoolId, ConnPid)
                      end),
     post_start(Pid, LogFun).
 
@@ -309,25 +308,19 @@ send_msg(Pid, Msg, From, Timeout) ->
 %%           we were successfull.
 %% Returns : void() | does not return
 %%--------------------------------------------------------------------
-init(Host, Port, User, Password, Database, LogFun, Encoding, PoolId, Parent) ->
-    %% mysql_conn spawn a recv process
+init(Host, Port, User, Password, Database, LogFun, Encoding, PoolId, Parent) -> %% parent = mysql-mod pid
+    %% mysql_conn 初始化 mysql_recv spawn a recv process
     case mysql_recv:start_link(Host, Port, LogFun, self()) of
         {ok, RecvPid, Sock} ->
             case mysql_init(Sock, RecvPid, User, Password, LogFun) of
                 {ok, Version} ->
                     Db = iolist_to_binary(Database),
-                    case do_query(Sock, RecvPid, LogFun,
-                                  <<"use ", Db/binary>>,
-                                  Version) of
+                    case do_query(Sock, RecvPid, LogFun, <<"use ", Db/binary>>, Version) of
                         {error, MySQLRes} ->
-                            ?Log2(LogFun, error,
-                                  "mysql_conn: Failed changing to database "
-                                  "~p : ~p",
-                                  [Database,
-                                   mysql:get_result_reason(MySQLRes)]),
-                            Parent ! {mysql_conn, self(),
-                                      {error, failed_changing_database}};
-
+                            ?Log2(LogFun, error, 
+                                  "mysql_conn: Failed changing to database " "~p : ~p",
+                                  [Database, mysql:get_result_reason(MySQLRes)]),
+                            Parent ! {mysql_conn, self(), {error, failed_changing_database}};
                         %% ResultType: data | updated
                         {_ResultType, _MySQLRes} ->
                             Parent ! {mysql_conn, self(), ok},
@@ -335,9 +328,7 @@ init(Host, Port, User, Password, Database, LogFun, Encoding, PoolId, Parent) ->
                                 undefined -> undefined;
                                 _ ->
                                     EncodingBinary = list_to_binary(atom_to_list(Encoding)),
-                                    do_query(Sock, RecvPid, LogFun,
-                                             <<"set names '", EncodingBinary/binary, "'">>,
-                                             Version)
+                                    do_query(Sock, RecvPid, LogFun, <<"set names '", EncodingBinary/binary, "'">>, Version)
                             end,
                             State = #state{mysql_version=Version,
                                            recv_pid = RecvPid,
@@ -415,8 +406,7 @@ send_reply(GenSrvFrom, Res) ->
     gen_server:reply(GenSrvFrom, Res).
 
 do_query(State, Query) ->
-    do_query(State#state.socket,
-             State#state.recv_pid,
+    do_query(State#state.socket, State#state.recv_pid,
              State#state.log_fun,
              Query,
              State#state.mysql_version
@@ -424,16 +414,13 @@ do_query(State, Query) ->
 
 do_query(Sock, RecvPid, LogFun, Query, Version) ->
     Query1 = iolist_to_binary(Query),
-    %% ?Log2(LogFun, debug, "fetch ~p (id ~p)", [Query1,RecvPid]),
+    ?Log2(LogFun, debug, "fetch ~p (id ~p)", [Query1,RecvPid]),
     Packet =  <<?MYSQL_QUERY_OP, Query1/binary>>,
     case do_send(Sock, Packet, 0, LogFun) of
         ok ->
-            get_query_response(LogFun,RecvPid,
-                               Version);
+            get_query_response(LogFun, RecvPid, Version);
         {error, Reason} ->
-            Msg = io_lib:format("Failed sending data "
-                                "on socket : ~p",
-                                [Reason]),
+            Msg = io_lib:format("Failed sending data " "on socket : ~p", [Reason]),
             {error, Msg}
     end.
 
@@ -580,29 +567,21 @@ mysql_init(Sock, RecvPid, User, Password, LogFun) ->
             AuthRes =
                 case Caps band ?SECURE_CONNECTION of
                     ?SECURE_CONNECTION ->
-                        mysql_auth:do_new_auth(
-                          Sock, RecvPid, InitSeqNum + 1,
-                          User, Password, Salt1, Salt2, LogFun);
+                        mysql_auth:do_new_auth(Sock, RecvPid, InitSeqNum + 1, User, Password, Salt1, Salt2, LogFun);
                     _ ->
-                        mysql_auth:do_old_auth(
-                          Sock, RecvPid, InitSeqNum + 1, User, Password,
-                          Salt1, LogFun)
+                        mysql_auth:do_old_auth(Sock, RecvPid, InitSeqNum + 1, User, Password, Salt1, LogFun)
                 end,
             case AuthRes of
                 {ok, <<0:8, _Rest/binary>>, _RecvNum} ->
                     {ok,Version};
                 {ok, <<255:8, Code:16/little, Message/binary>>, _RecvNum} ->
-                    ?Log2(LogFun, error, "init error ~p: ~p",
-                          [Code, binary_to_list(Message)]),
+                    ?Log2(LogFun, error, "init error ~p: ~p", [Code, binary_to_list(Message)]),
                     {error, binary_to_list(Message)};
                 {ok, RecvPacket, _RecvNum} ->
-                    ?Log2(LogFun, error,
-                          "init unknown error ~p",
-                          [binary_to_list(RecvPacket)]),
+                    ?Log2(LogFun, error, "init unknown error ~p", [binary_to_list(RecvPacket)]),
                     {error, binary_to_list(RecvPacket)};
                 {error, Reason} ->
-                    ?Log2(LogFun, error,
-                          "init failed receiving data : ~p", [Reason]),
+                    ?Log2(LogFun, error, "init failed receiving data : ~p", [Reason]),
                     {error, Reason}
             end;
         {error, Reason} ->
@@ -618,10 +597,10 @@ greeting(Packet, LogFun) ->
     <<Caps:16/little, Rest5/binary>> = Rest4,
     <<ServerChar:16/binary-unit:8, Rest6/binary>> = Rest5,
     {Salt2, _Rest7} = asciz(Rest6),
-    %% ?Log2(LogFun, debug,
-    %%       "greeting version ~p (protocol ~p) salt ~p caps ~p serverchar ~p"
-    %%       "salt2 ~p",
-    %%       [Version, Protocol, Salt, Caps, ServerChar, Salt2]),
+    ?Log2(LogFun, debug,
+           "greeting version ~p (protocol ~p) salt ~p caps ~p serverchar ~p"
+           "salt2 ~p",
+           [Version, Protocol, Salt, Caps, ServerChar, Salt2]),
     {normalize_version(Version, LogFun), Salt, Salt2, Caps}.
 
 %% part of greeting/2
@@ -650,7 +629,7 @@ asciz(Data) when is_list(Data) ->
 get_query_response(LogFun, RecvPid, Version) ->
     case do_recv(LogFun, RecvPid, undefined) of
         {ok, <<Fieldcount:8, Rest/binary>>, _} ->
-            case Fieldcount of
+            case Fieldcount of %% 返回的结果集的列的对象数组
                 0 ->
                     %% No Tabular data
                     <<AffectedRows:8, _Rest2/binary>> = Rest,
@@ -661,11 +640,10 @@ get_query_response(LogFun, RecvPid, Version) ->
                 _ ->
                     %% Tabular data received
                     case get_fields(LogFun, RecvPid, [], Version) of
-                        {ok, Fields} ->
+                        {ok, Fields} -> %% 接受数据集
                             case get_rows(Fields, LogFun, RecvPid, []) of
                                 {ok, Rows} ->
-                                    {data, #mysql_result{fieldinfo=Fields,
-                                                         rows=Rows}};
+                                    {data, #mysql_result{fieldinfo=Fields, rows=Rows}};
                                 {error, Reason} ->
                                     {error, #mysql_result{error=Reason}}
                             end;

@@ -47,6 +47,9 @@ test_info(N)->
     gen_server2:cast(?MODULE, {sum, 10}),
     test_info(N-1).
 
+get_pid()->
+    gen_server2:call(?MODULE, {get_pid}).
+
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -65,7 +68,7 @@ test_info(N)->
 %%--------------------------------------------------------------------
 init([]) ->
     process_flag(trap_exit, true),
-    db_sql:start_link(),
+    %% db_sql:start_link(),
     timer:sleep(1000),
     %% {ok, State, Timeout, Backoff = {backoff, _, _, _}}
     {ok, #state{}, hibernate, {backoff, 1000, 1000, 1000}}.
@@ -85,8 +88,8 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 
-handle_call(_Request, _From, State) ->
-    Reply = ok,
+handle_call({get_pid}, _From, State) ->
+    Reply = self(),
     {reply, Reply, State}.
 
 %%--------------------------------------------------------------------

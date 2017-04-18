@@ -8,8 +8,8 @@
 -module(db_sql).
 -export(
    [
-    start/0,
-    start_link/0,
+    start/1,
+    start_link/1,
     execute/1,
     execute/2,
     transaction/1,
@@ -28,11 +28,19 @@
 -include("common.hrl").
 
 
-start()->
-    mysql:start(?DB, "127.0.0.1", 3306, "root", "123456", "test").
+start(N)->
+    mysql:start(?DB, "127.0.0.1", 3306, "root", "123456", "test"),
+    lists:foreach(fun (_) ->
+                          mysql:connect(?DB, "127.0.0.1", 3306, "root", "123456", "test", utf8, true)
+                  end,
+                  lists:duplicate(N, dummy)).
 
-start_link()->
-    mysql:start_link(?DB, "127.0.0.1", 3306, "root", "123456", "test").
+start_link(N)->
+    mysql:start_link(?DB, "127.0.0.1", 3306, "root", "123456", "test"),
+    lists:foreach(fun (_) ->
+                          mysql:connect(?DB, "127.0.0.1", 3306, "root", "123456", "test", utf8, true)
+                  end,
+                  lists:duplicate(N, dummy)).
 
 
 %% 执行一个SQL查询,返回影响的行数

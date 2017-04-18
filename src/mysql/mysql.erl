@@ -121,6 +121,8 @@
 -export([log/4
         ]).
 
+-export([get_state/0]).
+
 %% Internal exports - gen_server callbacks
 -export([init/1,
          handle_call/3,
@@ -151,14 +153,12 @@
           %% pool id to a connection pool tuple
           conn_pools = gb_trees:empty(), 
 
-
           %% gb_tree mapping connection Pid
           %% to pool id
           pids_pools = gb_trees:empty(), 
 
           %% function for logging,
           log_fun,	
-
 
           %% maps names to {Statement::binary(), Version::integer()} values
           prepares = gb_trees:empty()
@@ -239,16 +239,12 @@ start(PoolId, Host, Port, User, Password, Database, LogFun, Encoding) ->
 
 start1(PoolId, Host, Port, User, Password, Database, LogFun, Encoding, StartFunc) ->
     crypto:start(),
-    gen_server:StartFunc(
-      {local, ?SERVER}, ?MODULE,
-      [PoolId, Host, Port, User, Password, Database, LogFun, Encoding], []).
+    gen_server:StartFunc({local, ?SERVER}, ?MODULE, [PoolId, Host, Port, User, Password, Database, LogFun, Encoding], []).
 
 
-%% @equiv connect(PoolId, Host, Port, User, Password, Database, Encoding,
-%%	   Reconnect, true)
+%% @equiv connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect, true)
 connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect) ->
-    connect(PoolId, Host, Port, User, Password, Database, Encoding,
-            Reconnect, true).
+    connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect, true).
 
 %% @doc Starts a MySQL connection and, if successful, add it to the
 %%   connection pool in the dispatcher.
@@ -257,24 +253,21 @@ connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect) ->
 %%    User::string(), Password::string(), Database::string(),
 %%    Encoding::string(), Reconnect::bool(), LinkConnection::bool()) ->
 %%      {ok, ConnPid} | {error, Reason}
-connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect,
-        LinkConnection) ->
+connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect, LinkConnection) ->
     Port1 = if Port == undefined -> ?PORT; true -> Port end,
-    Fun = if LinkConnection ->
+    Fun = if 
+              LinkConnection ->
                   fun mysql_conn:start_link/8;
-             true ->
+              true ->
                   fun mysql_conn:start/8
           end,
 
     {ok, LogFun} = gen_server:call(?SERVER, get_logfun),
-    case Fun(Host, Port1, User, Password, Database, LogFun,
-             Encoding, PoolId) of
+    case Fun(Host, Port1, User, Password, Database, LogFun, Encoding, PoolId) of
         {ok, ConnPid} ->
-            Conn = new_conn(PoolId, ConnPid, Reconnect, Host, Port1, User,
-                            Password, Database, Encoding),
-            case gen_server:call(
-                   ?SERVER, {add_conn, Conn}) of
-                ok ->
+            Conn = new_conn(PoolId, ConnPid, Reconnect, Host, Port1, User, Password, Database, Encoding),
+            case gen_server:call(?SERVER, {add_conn, Conn}) of
+                ok -> 
                     {ok, ConnPid};
                 Res ->
                     Res
@@ -283,8 +276,7 @@ connect(PoolId, Host, Port, User, Password, Database, Encoding, Reconnect,
             Err
     end.
 
-new_conn(PoolId, ConnPid, Reconnect, Host, Port, User, Password, Database,
-         Encoding) ->
+new_conn(PoolId, ConnPid, Reconnect, Host, Port, User, Password, Database, Encoding) ->
     case Reconnect of
         true ->
             #conn{pool_id = PoolId,
@@ -484,27 +476,26 @@ get_result_reason(#mysql_result{error=Reason}) ->
     Reason.
 
 connect(PoolId, Host, undefined, User, Password, Database, Reconnect) ->
-    connect(PoolId, Host, ?PORT, User, Password, Database, undefined,
-            Reconnect).
+    connect(PoolId, Host, ?PORT, User, Password, Database, undefined, Reconnect).
+
+
+%% 
+get_state()->
+    gen_server:call(?SERVER, {'get_state'}).
 
 %% gen_server callbacks
 
 init([PoolId, Host, Port, User, Password, Database, LogFun, Encoding]) ->
     LogFun1 = if LogFun == undefined -> fun log/4; true -> LogFun end,
-    %% mysqlj进程启动 mysql_conn进程
-    case mysql_conn:start(Host, Port, User, Password, Database, LogFun1,
-                          Encoding, PoolId) of
+    %% mysql 进程启动 mysql_conn进程
+    case mysql_conn:start(Host, Port, User, Password, Database, LogFun1, Encoding, PoolId) of
         {ok, ConnPid} ->
-            Conn = new_conn(PoolId, ConnPid, true, Host, Port, User, Password,
-                            Database, Encoding),
+            Conn = new_conn(PoolId, ConnPid, true, Host, Port, User, Password, Database, Encoding),
             State = #state{log_fun = LogFun1},
             NewState = add_conn(Conn, State),
-            %% io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, NewState]),
             {ok, NewState};
         {error, Reason} ->
-            ?Log(LogFun1, error,
-                 "failed starting first MySQL connection handler, "
-                 "exiting"),
+            ?Log(LogFun1, error, "failed starting first MySQL connection handler, " "exiting"),
             {stop, {error, Reason}}
     end.
 
@@ -552,7 +543,11 @@ handle_call({add_conn, Conn}, _From, State) ->
     {reply, ok, NewState};
 
 handle_call(get_logfun, _From, State) ->
-    {reply, {ok, State#state.log_fun}, State}.
+    {reply, {ok, State#state.log_fun}, State};
+
+handle_call({'get_state'}, _From, State) ->
+    {reply, {ok, State}, State}.
+
 
 handle_cast({prepare, Name, Stmt}, State) ->
     LogFun = State#state.log_fun,
@@ -655,18 +650,14 @@ add_conn(Conn, State) ->
     erlang:monitor(process, Conn#conn.pid),
     PoolId = Conn#conn.pool_id,
     ConnPools = State#state.conn_pools,
-    NewPool = 
-        case gb_trees:lookup(PoolId, ConnPools) of
-            none ->
-                {[Conn],[]};
-            {value, {Unused, Used}} ->
-                {[Conn | Unused], Used}
-        end,
-    State#state{conn_pools =
-                    gb_trees:enter(PoolId, NewPool,
-                                   ConnPools),
-                pids_pools = gb_trees:enter(Pid, PoolId,
-                                            State#state.pids_pools)}.
+    NewPool = case gb_trees:lookup(PoolId, ConnPools) of
+                  none ->
+                      {[Conn],[]};
+                  {value, {Unused, Used}} ->
+                      {[Conn | Unused], Used}
+              end,
+    State#state{conn_pools = gb_trees:enter(PoolId, NewPool, ConnPools),
+                pids_pools = gb_trees:enter(Pid, PoolId, State#state.pids_pools)}.
 
 remove_pid_from_list(Pid, Conns) ->
     lists:foldl(
