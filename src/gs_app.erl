@@ -34,16 +34,16 @@
 %% @end
 %%--------------------------------------------------------------------
 start(_StartType, _StartArgs) ->
-    case common_sup:start_link() of
+    case gs_sup:start_link() of
         {ok, Pid} ->
-            {ok, LogLevel} = application:get_env(common, log_level),
-            {ok, LogPath} = application:get_env(common, log_path),
+            {ok, LogLevel} = application:get_env(gs, log_level),
+            {ok, LogPath} = application:get_env(gs, log_path),
             File = filename:join(LogPath, get_file_name()),
-            common_loglevel:set(LogLevel),
-            error_logger:add_report_handler(common_logger_h, File),
+            log_loglevel:set(LogLevel),
+            error_logger:add_report_handler(log_logger_h, File),
             [Port |_] = init:get_plain_arguments(),
-            common_server_base:start(list_to_integer(Port)),
-            common_mysql:start_link(),
+            gs_server_base:start(list_to_integer(Port)),
+            %% common_mysql:start_link(),
             {ok, Pid};
         Error ->
             Error

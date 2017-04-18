@@ -51,9 +51,9 @@ start_link() ->
 %%--------------------------------------------------------------------
 init([]) ->
     SupFlags = {simple_one_for_one,  1, 5},
-    AChild = [{common_test, 
-              {common_test, start_link, []},
-              transient, brutal_kill, worker, [common_test]}],
+    AChild = [{gs_test, 
+              {gs_test, start_link, []},
+              transient, brutal_kill, worker, [gs_test]}],
     {ok, {SupFlags, AChild}}.
 
 %%%===================================================================
