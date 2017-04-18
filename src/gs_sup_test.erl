@@ -4,9 +4,9 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created : 22 Jan 2017 by root <root@localhost.heller>
+%%% Created : 21 Mar 2017 by root <root@localhost.heller>
 %%%-------------------------------------------------------------------
--module(common_sup).
+-module(gs_sup_test).
 
 -behaviour(supervisor).
 
@@ -50,15 +50,11 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
-    SupFlags = {one_for_one,  1, 5},
-    %% 警报日志管理进程
-    %% AlarmH = {common_alarm_handler,
-    %%           {common_alarm_handler, start_link, []},
-    %%           permanent, 2000, worker, dynamic},	      
-    %% AChild = {common_server,
-    %%           {common_server, start_link, []},
-    %%           permanent, 5000, worker, [common_server]},
-    {ok, {SupFlags, []}}.
+    SupFlags = {simple_one_for_one,  1, 5},
+    AChild = [{common_test, 
+              {common_test, start_link, []},
+              transient, brutal_kill, worker, [common_test]}],
+    {ok, {SupFlags, AChild}}.
 
 %%%===================================================================
 %%% Internal functions

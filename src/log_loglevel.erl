@@ -36,7 +36,7 @@
 %%%
 %%%----------------------------------------------------------------------
 
--module(common_loglevel).
+-module(log_loglevel).
 
 -export([set/1, get/0]).
 

@@ -24,7 +24,7 @@
 %%%
 %%%----------------------------------------------------------------------
 
--module(common_logger_h).
+-module(log_logger_h).
 
 -behaviour(gen_event).
 

@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 20 Mar 2017 by root <root@localhost.heller>
 %%%-------------------------------------------------------------------
--module(common_tcp_listener).
+-module(gs_tcp_listener).
 
 -behaviour(gen_server).
 

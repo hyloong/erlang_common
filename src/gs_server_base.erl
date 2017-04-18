@@ -5,7 +5,7 @@
 %%% @end
 %%% Created : 20 Mar 2017 by root <root@localhost.heller>
 
--module(common_server_base).
+-module(gs_server_base).
 
 -compile(export_all).
 

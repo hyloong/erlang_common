@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 23 Mar 2017 by root <root@localhost.heller>
 %%%-------------------------------------------------------------------
--module(common_server_client).
+-module(gs_server_client).
 -compile(export_all).
 
 start()->

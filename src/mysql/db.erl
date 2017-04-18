@@ -1,11 +1,11 @@
 %%%--------------------------------------
-%%% @Module  : db_sql
+%%% @Module  : db
 %%% @Author  : xyao
 %%% @Email   : jiexiaowen@gmail.com
 %%% @Created : 2010.05.10
 %%% @Description: MYSQL数据库操作 
 %%%--------------------------------------
--module(db_sql).
+-module(db).
 -export(
    [
     start/1,
