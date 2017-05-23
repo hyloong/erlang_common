@@ -30,18 +30,12 @@ turn(M, P) ->
                        [{K, tr(V)}] ++ Acc ; (Skip, Acc) -> Acc ++ [Skip]
                end,
                [], COpts),
-    %% c:c(P1, COpts1 ++ [native, "{hipe, [o3]}"]).
-    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, [COpts1]]),
-    c:c(P1, COpts1).
+    A = c:c(P1, COpts1 ++ [native, "{hipe, [o3]}"]),
+    io:format("~p ~pP1 A=~p~n", [?MODULE, ?LINE, [P1, A]]).
     
 tr(P)->
-    %% [{outdir,"/root/Downloads/otp_src_R16B03-1/lib/stdlib/src/../ebin"},
-    %%  {i,"/root/Downloads/otp_src_R16B03-1/lib/stdlib/src/../include"},
-    %%  {i,"/root/Downloads/otp_src_R16B03-1/lib/stdlib/src/../../kernel/include"},
-    %%  warnings_as_errors,debug_info]
-    %% io:format("~p ~p P=~p~n", [?MODULE, ?LINE, P]),
-    A = binary_to_list(iolist_to_binary(re:replace(P, "/root/Downloads/otp_src_R16B03-1/lib/stdlib/src/../ebin", "/root/erlang_ebin"))),  %%%这个地方要根据实际情况调整 具体的参看 m(lists).
-    %% io:format("~p ~p A=~p~n", [?MODULE, ?LINE, A]),
+    io:format("~p ~p P=~p~n", [?MODULE, ?LINE, P]),
+    A = binary_to_list(iolist_to_binary(re:replace(P, "/root/Downloads/otp_src_R16B03-1/lib/stdlib/src/../ebin", "/root/erl_rebin"))),  %%%这个地方要根据实际情况调整 具体的参看 m(lists).
     A.
 
 get_compile_options(L) ->

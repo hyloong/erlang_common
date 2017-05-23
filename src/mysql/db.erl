@@ -8,8 +8,8 @@
 -module(db).
 -export(
    [
-    start/1,
-    start_link/1,
+    start/0,
+    start_link/0,
     execute/1,
     execute/2,
     transaction/1,
@@ -27,20 +27,23 @@
   ).
 -include("common.hrl").
 
-
-start(N)->
-    mysql:start(?DB, "127.0.0.1", 3306, "root", "123456", "test"),
+start()->
+    F = fun() -> ok end,
+    [Host, Port, User, Pass, Name, Encode, ConnectNum] = config:get_mysql(),
+    mysql:start(?DB, Host, Port, User, Pass, Name, F, Encode),
     lists:foreach(fun (_) ->
-                          mysql:connect(?DB, "127.0.0.1", 3306, "root", "123456", "test", utf8, true)
+                          mysql:connect(?DB, Host, Port, User, Pass, Name, Encode, true)
                   end,
-                  lists:duplicate(N, dummy)).
+                  lists:duplicate(ConnectNum, dummy)).
 
-start_link(N)->
-    mysql:start_link(?DB, "127.0.0.1", 3306, "root", "123456", "test"),
+start_link()->
+    F = fun() -> ok end,
+    [Host, Port, User, Pass, Name, Encode, ConnectNum] = config:get_mysql(),
+    mysql:start_link(?DB, Host, Port, User, Pass, Name, F, Encode),
     lists:foreach(fun (_) ->
-                          mysql:connect(?DB, "127.0.0.1", 3306, "root", "123456", "test", utf8, true)
+                          mysql:connect(?DB, Host, Port, User, Pass, Name, Encode, true)
                   end,
-                  lists:duplicate(N, dummy)).
+                  lists:duplicate(ConnectNum, dummy)).
 
 
 %% 执行一个SQL查询,返回影响的行数

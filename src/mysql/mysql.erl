@@ -431,7 +431,6 @@ transaction(PoolId, Fun) ->
 transaction(PoolId, Fun, Timeout) ->
     case get(?STATE_VAR) of
         undefined ->
-            io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, [Fun]]),
             call_server({transaction, PoolId, Fun}, Timeout);
         State ->
             case mysql_conn:get_pool_id(State) of
@@ -443,7 +442,6 @@ transaction(PoolId, Fun, Timeout) ->
                         Other -> {atomic, Other}
                     end;
                 _Other ->
-                    io:format("~p ~p Args=~p~n", [?MODULE, ?LINE, [Fun]]),
                     call_server({transaction, PoolId, Fun}, Timeout)
             end
     end.

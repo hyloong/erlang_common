@@ -13,7 +13,7 @@
         ]).
 
 start()->
-    Apps = [sasl, common],
+    Apps = [gs],
     lists:map(fun(App)-> start_apps(App) end, Apps).
 
 

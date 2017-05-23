@@ -1,36 +1,29 @@
 %%%------------------------------------------------
 %%% File    : common.hrl
-%%% Author  : xyao
+%%% Author  : 
 %%% Created : 2010-04-22
 %%% Description: 公共定义
 %%%------------------------------------------------
-%-define(SD_SERVERS, 'SD_SERVERS').
+%% 总的在线人数
 -define(ALL_SERVER_PLAYERS, 10000).
 
-%%服务IP和端口
-%-define(HOST, "localhost").
-%-define(PORT, 6666).
-%-define(GAYEWAY_POST, 5555).
-
-%%安全校验
+%% 安全校验
 -define(TICKET, "SDFSDESF123DFSDF").
 
 %% flash843安全沙箱
-%% -define(FL_POLICY_REQ, <<"<pol">>).
+-define(FL_POLICY_REQ, <<"<pol">>).
 %% -define(FL_POLICY_REQ, <<"<policy-file-request/>\0">>).
-%% -define(FL_POLICY_FILE, <<"<cross-domain-policy><allow-access-from domain='*' to-ports='*' /></cross-domain-policy>">>).
+-define(FL_POLICY_FILE, <<"<cross-domain-policy><allow-access-from domain='*' to-ports='*' /></cross-domain-policy>">>).
 
-
-
-%%tcp_server监听参数
+%% tcp_server监听参数
 -define(TCP_PORT, 5200).
 -define(TCP_OPTIONS, [binary, {packet, 0}, {active, false}, {reuseaddr, true}, {nodelay, false}, 
                       {delay_send, true}, {send_timeout, 5000}, {keepalive, true}, {exit_on_close, true}]).
 
-%%数据库连接
--define(DB, common_mysql_conn).
+%% 数据库连接
+-define(DB, gs_mysql_conn).
 
-%% error_msg_logger
+%% 日志输出
 -define(TEST(F, A), common_logger:test_msg(?MODULE, ?LINE, F, A)).
 -define(DEBUG(F, A), common_logger:debug_msg(?MODULE, ?LINE, F, A)).
 -define(INFO(F, A), common_logger:info_msg(?MODULE, ?LINE, F, A)).
@@ -38,9 +31,10 @@
 -define(WARN(F, A), common_logger:warning_msg(?MODULE, ?LINE, F, A)).
 -define(CRITICAL(F, A), common_logger:critical_msg(?MODULE, ?LINE, F, A)).
 
-%% -define(DIFF_SECONDS_1970_1900, 2208988800).
-%% -define(DIFF_SECONDS_0000_1900, 62167219200).
-%% -define(ONE_DAY_SECONDS,        86400).
+%% 时间
+-define(DIFF_SECONDS_1970_1900, 2208988800).
+-define(DIFF_SECONDS_0000_1900, 62167219200).
+-define(ONE_DAY_SECONDS,        86400).
 
 %%ETS
 %% -define(ETS_SERVER, ets_server).
@@ -78,7 +72,6 @@
 %% -define(ETS_GUILD_MEMBER, ets_guild_member).                    %% 帮派成员
 %% -define(ETS_GUILD_APPLY,  ets_guild_apply).                     %% 帮派申请
 %% -define(ETS_GUILD_INVITE, ets_guild_invite).                    %% 帮派邀请
-
 
 %% %%打开发送消息客户端进程数量
 %% -define(SEND_MSG, 3).

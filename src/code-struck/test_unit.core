@@ -1,0 +1,235 @@
+module 'test_unit' ['busy'/0,
+		    'do_t1'/0,
+		    'do_t2'/0,
+		    'fib'/1,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'param_default'/1,
+		    'param_default1'/1,
+		    'send_msg'/2,
+		    't1'/0,
+		    't2'/0]
+    attributes []
+'t1'/0 =
+    %% Line 12
+    fun () ->
+	let <_cor0> =
+	    %% Line 13
+	    ( fun () ->
+		  apply 'do_t1'/0
+		      ()
+	      -| [{'id',{0,0,'-t1/0-fun-0-'}}] )
+	in  let <Pid> =
+		%% Line 13
+		call 'erlang':'spawn'
+		    (_cor0)
+	    in  %% Line 14
+		apply 'send_msg'/2
+		    (Pid, 100000)
+'t2'/0 =
+    %% Line 16
+    fun () ->
+	let <_cor0> =
+	    %% Line 17
+	    ( fun () ->
+		  apply 'do_t2'/0
+		      ()
+	      -| [{'id',{0,0,'-t2/0-fun-0-'}}] )
+	in  let <Pid> =
+		%% Line 17
+		call 'erlang':'spawn'
+		    (_cor0)
+	    in  %% Line 18
+		apply 'send_msg'/2
+		    (Pid, 100000)
+'send_msg'/2 =
+    %% Line 20
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Pid,0> when 'true' ->
+	      %% Line 21
+	      'ok'
+	  %% Line 22
+	  <Pid,N> when 'true' ->
+	      let <_cor2> =
+		  %% Line 23
+		  #{#<2>(N,1,'integer',['unsigned'|['big']])}#
+	      in  do  %% Line 23
+		      call 'erlang':'!'
+			  (Pid, _cor2)
+		      do  %% Line 24
+			  call 'timer':'sleep'
+			      (200)
+			  let <_cor3> =
+			      %% Line 25
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  %% Line 25
+			      apply 'send_msg'/2
+				  (Pid, _cor3)
+	end
+'do_t1'/0 =
+    %% Line 27
+    fun () ->
+	let <_cor0> =
+	    %% Line 28
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 28
+		call 'erlang':'garbage_collect'
+		    (_cor0)
+		let <_cor1> =
+		    %% Line 29
+		    call 'erlang':'self'
+			()
+		in  let <Result> =
+			%% Line 29
+			call 'erlang':'process_info'
+			    (_cor1, ['memory'|['garbage_collection']])
+		    in  do  %% Line 30
+			    call 'io':'format'
+				([126|[119|[126|[110]]]], [Result|[]])
+			    let <_cor3> =
+				%% Line 31
+				call 'erlang':'self'
+				    ()
+			    in  let <_cor4> =
+				    %% Line 31
+				    call 'erlang':'process_display'
+					(_cor3, 'backtrace')
+				in  do  %% Line 31
+					call 'io':'format'
+					    ([98|[97|[99|[107|[116|[114|[97|[99|[101|[58|[126|[119|[126|[110|[126|[110]]]]]]]]]]]]]]]], [_cor4|[]])
+					%% Line 32
+					try
+					    %% Line 33
+					    receive
+					      %% Line 34
+					      <_cor9> when 'true' ->
+						  %% Line 35
+						  apply 'do_t1'/0
+						      ()
+					    after 'infinity' ->
+					      'true'
+					of <_cor5> ->
+					    _cor5
+					catch <_cor8,_cor7,_cor6> ->
+					    %% Line 39
+					    apply 'do_t1'/0
+						()
+'do_t2'/0 =
+    %% Line 42
+    fun () ->
+	let <_cor0> =
+	    %% Line 43
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 43
+		call 'erlang':'garbage_collect'
+		    (_cor0)
+		let <_cor1> =
+		    %% Line 44
+		    call 'erlang':'self'
+			()
+		in  let <Result> =
+			%% Line 44
+			call 'erlang':'process_info'
+			    (_cor1, ['memory'|['garbage_collection']])
+		    in  do  %% Line 45
+			    call 'io':'format'
+				([126|[119|[126|[110]]]], [Result|[]])
+			    let <_cor3> =
+				%% Line 46
+				call 'erlang':'self'
+				    ()
+			    in  let <_cor4> =
+				    %% Line 46
+				    call 'erlang':'process_display'
+					(_cor3, 'backtrace')
+				in  do  %% Line 46
+					call 'io':'format'
+					    ([98|[97|[99|[107|[116|[114|[97|[99|[101|[58|[126|[119|[126|[110|[126|[110]]]]]]]]]]]]]]]], [_cor4|[]])
+					%% Line 47
+					receive
+					  %% Line 48
+					  <_cor5> when 'true' ->
+					      %% Line 49
+					      apply 'do_t2'/0
+						  ()
+					after 'infinity' ->
+					  'true'
+'fib'/1 =
+    %% Line 57
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      1
+	  %% Line 58
+	  <1> when 'true' ->
+	      1
+	  %% Line 59
+	  <N> when 'true' ->
+	      let <_cor3> =
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  let <_cor4> =
+		      apply 'fib'/1
+			  (_cor3)
+		  in  let <_cor1> =
+			  call 'erlang':'-'
+			      (N, 2)
+		      in  let <_cor2> =
+			      apply 'fib'/1
+				  (_cor1)
+			  in  call 'erlang':'+'
+				  (_cor4, _cor2)
+	end
+'busy'/0 =
+    %% Line 60
+    fun () ->
+	do  apply 'fib'/1
+		(10)
+	    apply 'busy'/0
+		()
+'param_default'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	%% Line 65
+	case <> of
+	  %% Line 66
+	  <>
+	      when call 'erlang':'=='
+		    (_cor0,
+		     1) ->
+	      5
+	  %% Line 67
+	  <> when 'true' ->
+	      0
+	end
+'param_default1'/1 =
+    %% Line 72
+    fun (_cor0) ->
+	let <_cor4,Five> =
+	    %% Line 73
+	    case <> of
+	      %% Line 74
+	      <>
+		  when call 'erlang':'=='
+			(_cor0,
+			 1) ->
+		  <5,5>
+	      %% Line 75
+	      <> when 'true' ->
+		  <0,0>
+	    end
+	in  %% Line 77
+	    Five
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('test_unit')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('test_unit', _cor0)
+end

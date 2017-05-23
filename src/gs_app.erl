@@ -36,14 +36,25 @@
 start(_StartType, _StartArgs) ->
     case gs_sup:start_link() of
         {ok, Pid} ->
-            {ok, LogLevel} = application:get_env(gs, log_level),
-            {ok, LogPath} = application:get_env(gs, log_path),
+            %% 日志 
+            LogLevel = config:get_log_level(),
+            LogPath = config:get_log_path(),
             File = filename:join(LogPath, get_file_name()),
             log_loglevel:set(LogLevel),
             error_logger:add_report_handler(log_logger_h, File),
-            [Port |_] = init:get_plain_arguments(),
-            gs_server_base:start(list_to_integer(Port)),
-            %% common_mysql:start_link(),
+            %% 启动mysql
+            db:start(),
+            %% 启动参数
+            [_Ip, _Port, _NId|_] = init:get_plain_arguments(),
+            NId = list_to_integer(_NId),
+            if 
+                NId >= 10 -> %% 游戏线
+                    gs_server_base:start();
+                NId == 1 -> %% 公共线
+                    gs_unite_base:start();
+                true -> %% 跨服
+                    gs_clusters_base:start()
+            end,
             {ok, Pid};
         Error ->
             Error

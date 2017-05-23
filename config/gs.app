@@ -1,11 +1,11 @@
 {
-    application, common,
+    application, gs,
     [
-        {description, "a common app"},
+        {description, "game server"},
         {vsn, "1.0"},
-        {modules, [common]},
-        {registered, [common_app]},
-        {applications, [kernel, stdlib]},
-        {mod, {common_app, []}}
+        {modules, [gs]},
+        {registered, [gs_app]},
+        {applications, [kernel, stdlib, sasl]},
+        {mod, {gs_app, []}}
     ]
 }.

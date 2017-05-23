@@ -51,13 +51,6 @@ start_link() ->
 %%--------------------------------------------------------------------
 init([]) ->
     SupFlags = {one_for_one,  1, 5},
-    %% 警报日志管理进程
-    %% AlarmH = {common_alarm_handler,
-    %%           {common_alarm_handler, start_link, []},
-    %%           permanent, 2000, worker, dynamic},	      
-    %% AChild = {common_server,
-    %%           {common_server, start_link, []},
-    %%           permanent, 5000, worker, [common_server]},
     {ok, {SupFlags, []}}.
 
 %%%===================================================================

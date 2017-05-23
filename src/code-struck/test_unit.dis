@@ -1,0 +1,132 @@
+00007F78222BE978: i_func_info_IaaI 0 test_unit t1 0 
+00007F78222BE9A0: allocate_tt 0 0 
+00007F78222BE9B0: i_make_fun_It 573302760 0 
+00007F78222BE9C8: i_call_ext_e erlang:spawn/1 
+00007F78222BE9D8: move_x1_c 100000 
+00007F78222BE9E8: i_call_last_fP test_unit:send_msg/2 0 
+
+00007F78222BEA00: i_func_info_IaaI 0 test_unit t2 0 
+00007F78222BEA28: allocate_tt 0 0 
+00007F78222BEA38: i_make_fun_It 573302856 0 
+00007F78222BEA50: i_call_ext_e erlang:spawn/1 
+00007F78222BEA60: move_x1_c 100000 
+00007F78222BEA70: i_call_last_fP test_unit:send_msg/2 0 
+
+00007F78222BEA88: i_func_info_IaaI 0 test_unit send_msg 2 
+00007F78222BEAB0: i_is_eq_exact_immed_fxc f(00007F78222BEAE0) x(1) 0 
+00007F78222BEAD0: move_return_cr ok x(0) 
+00007F78222BEAE0: allocate_zero_tt 2 2 
+00007F78222BEAF0: move_xx x(1) x(2) 
+00007F78222BEB00: i_bs_init_bits_fail_xjId x(2) j(0000000000000000) 2 x(2) 
+00007F78222BEB28: i_new_bs_put_integer_jsIs j(0000000000000000) x(1) 8 2 
+00007F78222BEB50: move_xy x(1) y(0) 
+00007F78222BEB60: move_xx x(2) x(1) 
+00007F78222BEB70: move_ry x(0) y(1) 
+00007F78222BEB80: send 
+00007F78222BEB88: i_move_call_ext_cre 200 x(0) timer:sleep/1 
+00007F78222BEBA0: i_fetch_yc y(0) 1 
+00007F78222BEBB8: i_minus_jId j(0000000000000000) 0 x(1) 
+00007F78222BEBD8: move_call_last_yrfQ y(1) x(0) test_unit:send_msg/2 2 
+
+00007F78222BEBF0: i_func_info_IaaI 0 test_unit do_t1 0 
+00007F78222BEC18: allocate_zero_tt 1 0 
+00007F78222BEC28: self_r x(0) 
+00007F78222BEC30: i_call_ext_e erlang:garbage_collect/1 
+00007F78222BEC40: self_r x(0) 
+00007F78222BEC48: move_x1_c [memory,garbage_collection] 
+00007F78222BEC58: i_call_ext_e erlang:process_info/2 
+00007F78222BEC68: test_heap_It 2 1 
+00007F78222BEC78: put_list_rnx x(0) [] x(1) 
+00007F78222BEC88: i_move_call_ext_cre "~w~n" x(0) io:format/2 
+00007F78222BECA0: self_r x(0) 
+00007F78222BECA8: move_x1_c backtrace 
+00007F78222BECB8: call_bif_e erlang:process_display/2 
+00007F78222BECC8: test_heap_It 2 1 
+00007F78222BECD8: put_list_rnx x(0) [] x(1) 
+00007F78222BECE8: i_move_call_ext_cre "backtrace:~w~n~n" x(0) io:format/2 
+00007F78222BED00: catch_yf y(0) f(0000000000007D5B) 
+00007F78222BED18: i_loop_rec_fr f(00007F78222BED50) x(0) 
+00007F78222BED28: remove_message 
+00007F78222BED30: i_call_f test_unit:do_t1/0 
+00007F78222BED40: jump_f f(00007F78222BED60) 
+00007F78222BED50: wait_locked_f f(00007F78222BED18) 
+00007F78222BED60: try_end_y y(0) 
+00007F78222BED70: deallocate_return_Q 1 
+00007F78222BED80: try_end_y y(0) 
+00007F78222BED90: i_call_last_fP test_unit:do_t1/0 1 
+
+00007F78222BEDA8: i_func_info_IaaI 0 test_unit do_t2 0 
+00007F78222BEDD0: allocate_tt 0 0 
+00007F78222BEDE0: self_r x(0) 
+00007F78222BEDE8: i_call_ext_e erlang:garbage_collect/1 
+00007F78222BEDF8: self_r x(0) 
+00007F78222BEE00: move_x1_c [memory,garbage_collection] 
+00007F78222BEE10: i_call_ext_e erlang:process_info/2 
+00007F78222BEE20: test_heap_It 2 1 
+00007F78222BEE30: put_list_rnx x(0) [] x(1) 
+00007F78222BEE40: i_move_call_ext_cre "~w~n" x(0) io:format/2 
+00007F78222BEE58: self_r x(0) 
+00007F78222BEE60: move_x1_c backtrace 
+00007F78222BEE70: call_bif_e erlang:process_display/2 
+00007F78222BEE80: test_heap_It 2 1 
+00007F78222BEE90: put_list_rnx x(0) [] x(1) 
+00007F78222BEEA0: i_move_call_ext_cre "backtrace:~w~n~n" x(0) io:format/2 
+00007F78222BEEB8: i_loop_rec_fr f(00007F78222BEEE8) x(0) 
+00007F78222BEEC8: remove_message 
+00007F78222BEED0: i_call_last_fP test_unit:do_t2/0 0 
+00007F78222BEEE8: wait_locked_f f(00007F78222BEEB8) 
+
+00007F78222BEEF8: i_func_info_IaaI 0 test_unit fib 1 
+00007F78222BEF20: i_jump_on_val_zero_rfI x(0) f(00007F78222BEF58) 2 f(00007F78222BEF48) f(00007F78222BEF48) 
+00007F78222BEF48: move_return_cr 1 x(0) 
+00007F78222BEF58: allocate_zero_tt 1 1 
+00007F78222BEF68: i_fetch_rc x(0) 1 
+00007F78222BEF78: i_minus_jId j(0000000000000000) 1 x(1) 
+00007F78222BEF98: move_ry x(0) y(0) 
+00007F78222BEFA8: move_call_xrf x(1) x(0) test_unit:fib/1 
+00007F78222BEFC0: i_fetch_yc y(0) 2 
+00007F78222BEFD8: i_minus_jId j(0000000000000000) 1 x(1) 
+00007F78222BEFF8: move_ry x(0) y(0) 
+00007F78222BF008: move_call_xrf x(1) x(0) test_unit:fib/1 
+00007F78222BF020: i_fetch_yr y(0) x(0) 
+00007F78222BF030: i_plus_jId j(0000000000000000) 1 x(0) 
+00007F78222BF050: deallocate_return_Q 1 
+
+00007F78222BF060: i_func_info_IaaI 0 test_unit busy 0 
+00007F78222BF088: allocate_tt 0 0 
+00007F78222BF098: i_move_call_crf 10 x(0) test_unit:fib/1 
+00007F78222BF0B0: i_call_last_fP test_unit:busy/0 0 
+
+00007F78222BF0C8: i_func_info_IaaI 0 test_unit param_default 1 
+00007F78222BF0F0: i_fetch_rc x(0) 1 
+00007F78222BF100: i_is_eq_f f(00007F78222BF120) 
+00007F78222BF110: move_return_cr 5 x(0) 
+00007F78222BF120: move_return_cr 0 x(0) 
+
+00007F78222BF130: i_func_info_IaaI 0 test_unit param_default1 1 
+00007F78222BF158: i_fetch_rc x(0) 1 
+00007F78222BF168: i_is_eq_f f(00007F78222BF198) 
+00007F78222BF178: move_x1_c 5 
+00007F78222BF188: jump_f f(00007F78222BF1A8) 
+00007F78222BF198: move_x1_c 0 
+00007F78222BF1A8: move_return_xr x(1) x(0) 
+
+00007F78222BF1B8: i_func_info_IaaI 0 test_unit module_info 0 
+00007F78222BF1E0: move_cr test_unit x(0) 
+00007F78222BF1F0: allocate_tt 0 1 
+00007F78222BF200: call_bif_e erlang:get_module_info/1 
+00007F78222BF210: deallocate_return_Q 0 
+
+00007F78222BF220: i_func_info_IaaI 0 test_unit module_info 1 
+00007F78222BF248: move_rx x(0) x(1) 
+00007F78222BF258: move_cr test_unit x(0) 
+00007F78222BF268: allocate_tt 0 2 
+00007F78222BF278: call_bif_e erlang:get_module_info/2 
+00007F78222BF288: deallocate_return_Q 0 
+
+00007F78222BF298: i_func_info_IaaI 0 test_unit '-t2/0-fun-0-' 0 
+00007F78222BF2C0: i_call_only_f test_unit:do_t2/0 
+
+00007F78222BF2D0: i_func_info_IaaI 0 test_unit '-t1/0-fun-0-' 0 
+00007F78222BF2F8: i_call_only_f test_unit:do_t1/0 
+
