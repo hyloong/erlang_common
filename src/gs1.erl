@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 22 Jan 2017 by root <root@localhost.heller>
 %%%-------------------------------------------------------------------
--module(gs).
+-module(gs1).
 
 -export([
          start/0

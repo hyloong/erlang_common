@@ -14,7 +14,7 @@
         ]).
 
 -define(NODE, 'yxyz10@192.168.5.59').
--define(CNODE, 'yxyz0@192.168.5.59').
+-define(CNODE, 'yxyz01@192.168.5.59').
 
 p()->
     net_adm:ping(?NODE).

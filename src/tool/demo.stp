@@ -1,0 +1,34 @@
+global t0, t1, t2
+ 
+probe process("beam.smp").function("spawn_start") {
+        printf("spawn %\s\n", user_string($name))
+        t0 = gettimeofday_us()
+}
+ 
+probe process("beam.smp").statement("*@sys.c:1607") {
+        t1 = gettimeofday_ns()
+}
+ 
+probe process("beam.smp").statement("*@sys.c:1627") {
+        printf("vfork take %d ns\n", gettimeofday_ns() - t1);
+}
+ 
+probe process("child_setup").function("main") {
+        t2 = gettimeofday_us()
+}
+ 
+probe process("child_setup").statement("*@erl_child_setup.c:111") {
+        t3 = gettimeofday_us()
+        printf("spawn take %d us, child_setup take %d us\n", t3 - t0, t3 - t2)
+}
+ 
+probe syscall.execve {
+        printf("%s, arg %s\n", name, argstr)
+}
+ 
+probe syscall.fork {
+        printf("%s, arg %s\n", name, argstr)
+}
+ 
+probe begin {
+        println(")");

@@ -119,3 +119,18 @@ loop([[K, V]|L], Dict)->
 %% loop(L, [])-> L;
 %% loop([H|T], L)-> loop(T, [H|L]).
 
+
+tl()->
+    spawn(fun() ->ha() end),
+    %% timer:sleep(20),
+    io:format("~p ~p Args=~w~n", [?MODULE, ?LINE, [a]]),
+    Msg = io:get_line(""),
+    io:format("~p ~p process=~w~n", [?MODULE, ?LINE, [main_process]]),
+    io:format("~p ~p Msg=~w~n", [?MODULE, ?LINE, [Msg]]).
+
+ha()->
+    io:format("~p ~p Args=~w~n", [?MODULE, ?LINE, [b]]),
+    Msg = io:get_line(""),
+    io:format("~p ~p process=~w~n", [?MODULE, ?LINE, [child_process]]),
+    io:format("~p ~p Msg=~w~n", [?MODULE, ?LINE, [Msg]]).
+

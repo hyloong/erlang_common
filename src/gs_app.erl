@@ -11,7 +11,7 @@
 -behaviour(application).
 
 %% Application callbacks
--export([start/2, stop/1]).
+-export([start/2, stop/1, start_main_processes/1]).
 
 %%%===================================================================
 %%% Application callbacks
@@ -36,24 +36,20 @@
 start(_StartType, _StartArgs) ->
     case gs_sup:start_link() of
         {ok, Pid} ->
-            %% 日志 
+            %% 启动日志 
             LogLevel = config:get_log_level(),
             LogPath = config:get_log_path(),
             File = filename:join(LogPath, get_file_name()),
             log_loglevel:set(LogLevel),
             error_logger:add_report_handler(log_logger_h, File),
-            %% 启动mysql
-            db:start(),
             %% 启动参数
-            [_Ip, _Port, _NId|_] = init:get_plain_arguments(),
+            [Ip, _Port, _NId|_] = init:get_plain_arguments(),
+            Port = list_to_integer(_Port),
             NId = list_to_integer(_NId),
             if 
-                NId >= 10 -> %% 游戏线
-                    gs_server_base:start();
-                NId == 1 -> %% 公共线
-                    gs_unite_base:start();
-                true -> %% 跨服
-                    gs_clusters_base:start()
+                NId >= 10 -> gs_server:start([Ip, Port, NId]);
+                NId == 1  -> gs_unite:start([Ip, Port, NId]);
+                true      -> gs_clusters:start([Ip, Port, NId])
             end,
             {ok, Pid};
         Error ->
@@ -79,3 +75,31 @@ stop(_State) ->
 get_file_name()->
     {{Y,M,D},_} = calendar:local_time(),
     lists:concat(["sys_alarm_", Y, "_", M, "_", D, ".txt"]).
+
+%% 功能主进程启动函数
+start_main_processes([]) ->
+    %% util:errlog("~p ~p all main process start ok~n", [?MODULE, ?LINE]);
+    ok;
+start_main_processes([{M, F, A}|MFAs]) when is_atom(M), is_atom(F), is_list(A)->
+    start_process(M, F, A),
+    start_main_processes(MFAs);
+start_main_processes([{M, A}|MFAs]) when is_atom(M), is_list(A)->
+    start_process(M, start_link, A),
+    start_main_processes(MFAs);
+start_main_processes([M|MFAs]) when is_atom(M)-> 
+    start_process(M, start_link, []),
+    start_main_processes(MFAs);
+start_main_processes([M|MFAs]) -> 
+    util:errlog("~p ~p error main process mod=~p~n", [?MODULE, ?LINE, M]),
+    start_main_processes(MFAs).
+
+start_process(M, F, A)->
+    _T = util:longunixtime(),
+    Child = {M, {M, F, A}, permanent, 10000, worker, [M]},
+    {ok, _} = supervisor:start_child(gs_sup, Child),
+    case util:longunixtime() - _T >= 100 of
+        true -> util:errlog("~p ~p T =~w~n", [?MODULE, ?LINE, util:longunixtime() - _T]);
+        _ -> skip
+    end,
+    ok.
+

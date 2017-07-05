@@ -1,5 +1,5 @@
 {
-	["*", "src/*", "src/*/*"],
+	["*", "src/*", "src/*/*", "src/*/*/*"],
 	[
 		debug_info,
 		{i, "include"},
