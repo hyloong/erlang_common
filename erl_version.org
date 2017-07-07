@@ -1,0 +1,869 @@
+* Erlang/OTP 20.0-rc2 is available for testing 
+  There are only minor changes compared to the first release candidate, some of them listed below:
+
+  erts: ./configure --enable-lock-counter will enable building of an additional emulator that has support for
+  lock counting. (The option previously existed, but would turn on lock counting in the default emulator
+  being built.) To start the lock-counting emulator, use erl -emu_type lcnt.
+  kernel: Added the process_flag message_queue_data = off_heap to the code_server process in order to
+  improve characteristics during code upgrade, which can generate a huge amount of messages.
+  Here are some of the most important news in OTP 20 (same as in RC1):
+
+** Potential Incompatibilities
+   ERTS:
+
+   The non SMP Erlang VM is deprecated and not built by default 默认是smp模式,不赞成使用没有smp的模式
+   Remove deprecated erlang:hash/2 移除
+   erlang:statistics/1 with scheduler_wall_time now also includes info about dirty CPU schedulers.
+   The new purge strategy新的清理策略 introduced in OTP 19.1 is mandatory强制使用 and slightly incompatible for processes holding funs
+   see erlang:check_process_code/3.
+   The NIF library reload is not supported anymore.
+   Asn1: Deprecated module and functions removed (asn1rt, asn1ct:encode/3 and decode/3)
+
+   Ssh: client only option in a call to start a daemon will now fail
+
+** Highlights
+   Erts:
+   Dirty schedulers enabled and supported on VM with SMP support.
+   support for “dirty” BIFs and “dirty” GC.
+   erlang:garbage_collect/2 for control of minor or major GC 能够控制gc的模式，是次要、主要
+   Erlang literals(文字或者常量) are no longer copied when sending messages.
+   Improved performance for large ETS tables, >256 entries (except ordered_set) 对于大于256条的记录的性能提升
+   erlang:system_info/1 atom_count and atom_limit
+   Reduced memory pressure by converting sub-binaries to heap-binaries during GC 在gc的时候减小内存的压力
+   enif_select, map an external event to message
+
+   Compiler:
+   Code generation for complicated guards is improved.
+   Warnings for repeated identical map keys. #{'a'=>1, 'b'=>2, 'a'=>3} will warn for the repeated key a.
+   By default there is now a warning when export_all is used. Can be disabled
+   Pattern matching for maps is optimized 匹配最优化
+   New option deterministic to omit path to source + options info the BEAM file.
+   Atoms may now contain arbitrary unicode characters. 原子现在能包含任意的unicode字符
+   compile:file/2 has an option to include extra chunks in the BEAM file.
+
+   Misc other applications 其他的用的特色
+   Unnamed ets tables optimized
+   A new event manager to handle a subset of OS signals in Erlang 新的事件管理者处理系统的子集信号
+   Optimized sets add_element, del_element and union
+   Added rand:jump/0-1
+   When a gen_server crashes, the stacktrace for the client will be printed to facilitate debugging. 客户端会打印gen_server的崩溃信息
+   take/2 has been added to dict, orddict, and gb_trees.
+   take_any/2 has been added to gb_trees
+   Significantly updated string module with unicode support
+   erl_tar support for long path names and new file formats
+   Dtls: Documented API, experimental
+   SSH: improving security, removing and adding algorithms
+   New math:fmod/2
+   For more details see:http://erlang.org/download/otp_src_20.0-rc2.readme
+   
+   built versions for Windows:
+   http://erlang.org/download/otp_win32_20.0-rc2.exe
+   http://erlang.org/download/otp_win64_20.0-rc2.exe
+
+   On line documentation:http://www.erlang.org/documentation/doc-9.0-rc2/doc/
+
+
+* Erlang/OTP 20.0-rc1 is available for testing 
+  Here are some of the most important news:
+** Potential Incompatibilities:不兼容部分
+   ERTS:
+   The non SMP Erlang VM is deprecated and not built by default
+   Remove deprecated erlang:hash/2
+   erlang:statistics/1 with scheduler_wall_time now also includes info about dirty CPU schedulers.
+   The new purge strategy introduced in OTP 19.1 is mandatory and slightly incompatible for processes holding funs
+   see erlang:check_process_code/3.
+   The NIF library reload is not supported anymore.
+   Asn1: Deprecated module and functions removed (asn1rt, asn1ct:encode/3 and decode/3)
+   Ssh: client only option in a call to start a daemon will now fail
+   
+** Highlights
+   Erts:
+   Dirty schedulers enabled and supported on VM with SMP support.
+   support for “dirty” BIFs and “dirty” GC.
+   erlang:garbage_collect/2 for control of minor or major GC
+   Erlang literals are no longer copied when sending messages.
+   Improved performance for large ETS tables, >256 entries (except ordered_set)
+   erlang:system_info/1 atom_count and atom_limit
+   Reduced memory pressure by converting sub-binaries to heap-binaries during GC
+   enif_select, map an external event to message
+   Compiler:
+   Code generation for complicated guards is improved.
+   Warnings for repeated identical map keys. #{'a'=>1, 'b'=>2, 'a'=>3} will warn for the repeated key a.
+   By default there is now a warning when export_all is used. Can be disabled
+   Pattern matching for maps is optimized
+   New option deterministic to omit path to source + options info the BEAM file.
+   Atoms may now contain arbitrary unicode characters.
+   compile:file/2 has an option to include extra chunks in the BEAM file.
+   Misc other applications
+   Unnamed ets tables optimized
+   A new event manager to handle a subset of OS signals in Erlang
+   Optimized sets add_element, del_element and union
+   Added rand:jump/0-1
+   When a gen_server crashes, the stacktrace for the client will be printed to facilitate debugging.
+   take/2 has been added to dict, orddict, and gb_trees.
+   take_any/2 has been added to gb_trees
+   Significantly updated string module with unicode support
+   erl_tar support for long path names and new file formats
+   Dtls: Documented API, experimental
+   SSH: improving security, removing and adding algorithms
+   New math:fmod/2
+   
+   more details see:http://erlang.org/download/otp_src_20.0-rc1.readme
+
+   Pre built versions for Windows can be fetched here:
+   http://erlang.org/download/otp_win32_20.0-rc1.exe
+   http://erlang.org/download/otp_win64_20.0-rc1.exe
+
+   
+* Erlang/OTP 19.3 has been released 
+** Some highlights for 19.3
+   crypto, ssh: The implementation of the key exchange algorithms diffie-hellman-group-exchange-sha* are optimized,
+   up to a factor of 11 for the slowest ( = biggest and safest) group size.
+   dialyzer: The peak memory consumption is reduced.
+   Analyzing modules with binary construction with huge strings is now much faster.
+   erts: A received SIGTERM signal to beam will generate a 'stop' message to the init process and terminate the Erlang VM nicely.
+   This is equivalent to calling init:stop/0.
+   kernel: The functions in the 'file' module that take a list of paths (e.g. file:path_consult/2)
+   will now continue to search in the path if the path contains something that is not a directory.
+   Two OTP processes that are known to receive many messages are 'rex' (used by 'rpc') and 'error_logger'.
+   Those processes will now store unprocessed messages outside the process heap, this will improve their capability to handle large message queues.
+   public_key: New function pkix_verify_hostname/2,3 Implements certificate hostname checking. See the manual and RFC 6125.
+   public_key, ssh: The ssh host key fingerprint generation now also takes a list of algorithms and returns a list of corresponding fingerprints.
+   See public_key:ssh_hostkey_fingerprint/2 and the option silently_accept_hosts in ssh:connect.
+   ssl: Move PEM cache to a dedicated process, to avoid making the SSL manager process a bottleneck. This improves scalability of TLS connections.
+   stdlib: filename:safe_relative_path/1 to sanitize a relative path has been added.
+
+   more details info at:http://www.erlang.org/download/otp_src_19.3.readme
+   github:https://github.com/erlang/otp with tag OTP-19.3
+
+   
+* Erlang/OTP 19.2 has been released 
+** Some highlights for 19.2
+   STDLIB: The new behaviour gen_statem has been improved with 3 new features:
+   the possibility to use old style non-proxy timeouts for gen_statem:call/2,3, state entry code, and state timeouts.
+   These are backwards compatible.
+   Minor code and documentation improvements has been performed including a borderline semantics correction of timeout zero handling.
+   SSL: Experimental version of DTLS. It is runnable but not complete and cannot be considered reliable for production usage.
+   To use DTLS add the option {protocol, dtls} to ssl:connect and ssl:listen.
+   SSH: Extended the option silently_accept_hosts for ssh:connect to make it possible for the client to check the SSH host key fingerprint string.
+   Se the reference manual for SSH.
+   more detaile info at:http://www.erlang.org/download/otp_src_19.2.readme
+   http://www.erlang.org/download/otp_src_19.2.tar.gz
+   http://www.erlang.org/download/otp_win32_19.2.exe
+   http://www.erlang.org/download/otp_win64_19.2.exe
+
+
+* Erlang/OTP 19.1 has been released 
+** Some highlights of the release are:
+   erts: Improved dirty scheduler support. A purge of a module will not have to wait for completion of all ongoing dirty NIF calls.
+   erts: Improved accuracy of timeouts on MacOS X.
+   kernel: Add net_kernel:setopts/2 and net_kernel:getopts/2 to control options for distribution sockets in runtime.
+   asn1: Compiling multiple ASN.1 modules in the same directory with parallel make (make -j) should now be safe.
+   httpd: support for PUT and DELETE in mod_esi
+   
+   more detailed info at:http://www.erlang.org/download/otp_src_19.1.readme
+   full source:http://www.erlang.org/download/otp_src_19.1.tar.gz
+   Git tag OTP-19.1:https://github.com/erlang/otp/tree/OTP-19.1
+   http://www.erlang.org/download/otp_win32_19.1.exe
+   http://www.erlang.org/download/otp_win64_19.1.exe
+
+   http://www.erlang.org/download/otp_doc_html_19.1.tar.gz
+   http://www.erlang.org/download/otp_doc_man_19.1.tar.gz
+
+
+* Erlang/OTP 19.0 has been released 
+
+** Some highlights of the release are:
+   compiler, stdlib:
+   New preprocessor macros ?FUNCTION_NAME, ?FUNCTION_ARITY
+   New preprocessor directives -error(Term) and -warning(Term) to cause a compilation error or warning, respectively.
+   gen_statem a new state machine behavior
+   mnesia_ext: plugin of external storage solutions to mnesia
+   crypto: uses EVP interface in OpenSSL resulting in generally better performance and support for HW acceleration
+   ssh: performance improvements, uses the new gen_statem behavior
+   ssl: enhanced error log messages
+   dialyzer: the support for maps is very much extended both the type specification syntax and the type analysis.
+   erts:
+   erlang:open_port(spawn, ...) 3-5 times faster
+   tracing, extensive improvements (scalability, speed, match specifications on send/receive, support for lttng, ...)
+   dirty schedulers improved
+   per process configurable handling of message_queue
+   fast loading of multiple modules
+   max_heap_size process flag
+   erts/kernel:
+   Experimental support for Unix Domain Sockets
+   Example: gen_udp:open(0, [{ifaddr,{local,"/tmp/socket"}}])
+   and much more ....
+   more detailed info at:http://www.erlang.org/download/otp_src_19.0.readme
+   Git tag OTP-19.0:https://github.com/erlang/otp/tree/OTP-19.0
+
+
+* Erlang/OTP 19.0-rc1 is available for testing 12 May 2016
+** Some highlights of the release are:
+   compiler, stdlib:
+   New preprocessor macros ?FUNCTION_NAME, ?FUNCTION_ARITY
+   New preprocessor directives -error(Term) and -warning(Term) to cause a compilation error or warning, respectively.
+   gen_statem a new state machine behavior
+   mnesia_ext: plugin of external storage solutions to mnesia
+   crypto: uses EVP interface in OpenSSL resulting in generally better performance and support for HW acceleration
+   ssh: performance improvements, uses the new gen_statem behavior
+   dialyzer: the support for maps is very much extended both the type specification syntax and the type analysis.
+   erts:
+   erlang:open_port(spawn, ...) 3-5 times faster
+   tracing, extensive improvements (scalability, speed, match specifications on send/receive, support for lttng, ...)
+   dirty schedulers improved
+   per process configurable handling of message_queue
+   fast loading of multiple modules
+   max_heap_size process flag
+   and much more ....
+   more detailed:http://www.erlang.org/download/OTP-19.0-rc1.README
+   github:https://github.com/erlang/otp/tree/OTP-19.0-rc1
+   http://www.erlang.org/documentation/doc-8.0-rc1/doc/
+
+
+* Erlang/OTP 18.3 has been released 
+
+** Some highlights of the release are:
+   New statistics info about runnable and active processes & ports. 
+   Call erlang:statistics with total_run_queue_lengths | run_queue_lengths | total_active_tasks | active_tasks.
+   Time warp improvements: dbg:p/2 and erlang:trace/3 with monotonic_timestamp | strict_monotonic_timestamp.
+   Introduced a validation callback for heart.
+   The module overload in sasl has been deprecated.
+   more detailed:http://www.erlang.org/download/otp_src_18.3.readme
+   full source:http://www.erlang.org/download/otp_src_18.3.tar.gz
+
+
+* Erlang/OTP 18.2.1 has been released 
+  Written by Henrik, 18 Dec 2015
+  Due to a bug in the handling of paths on windows none of the following would work with paths containing a space:
+  ct_run
+  dialyzer
+  erlc
+  escript
+  typer
+  This also contains a fix for HiPE enabled emulator for FreeBSD.
+
+
+* Erlang/OTP 18.2 has been released  
+** Some highlights of the release are:
+   ssl: Add configurable upper limit for session cache.
+   erts: Add function enif_getenv to read OS environment variables in a portable way from NIFs.
+   kernel: Add {line_delim, byte()} option to inet:setopts/2 and decode_packet/3
+   ssh: The 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384' and 'ecdsa-sha2-nistp521' signature algorithms for ssh are implemented. See RFC 5656.
+   ssh: The ssh:daemon option dh_gex_groups is extended to read a user provided ssh moduli file with generator-modulus pairs. The file is in openssh format.
+  
+
+* Erlang/OTP 18.1 has been released 23 Sep 2015
+
+** Some highlights of the release are:
+   ssl: Add possibility to downgrade an SSL/TLS connection to a tcp connection,
+   and give back the socket control to a user process.
+   ssh: The following new key exchange algorithms are implemented:'ecdh-sha2-nistp256',
+   'ecdh-sha2-nistp384', 'ecdh-sha2-nistp521','diffie-hellman-group14-sha1',
+   'diffie-hellman-group-exchange-sha1' and 'diffie-hellman-group-exchange-sha256'. This raises the security level considerably.
+   kernel,stdlib,sasl: A mechanism for limiting the amount of text that the built-in error logger events will produce has been introduced.
+   限制内置错误日志的文字数量。
+   It is useful for limiting both the size of log files（限制日志文件的的大小） and the CPU time used to produce them（cpu时间创建）. 
+   See config parameter error_logger_format_depth in the Kernel application.（查看配置）
+
+   更多的： http://www.erlang.org/download/otp_src_18.1.readme
+   source：http://www.erlang.org/download/otp_src_18.1.tar.gz
+   Git tag OTP-18.1：https://github.com/erlang/otp/tree/OTP-18.1
+   http://www.erlang.org/download/otp_win32_18.1.exe
+   http://www.erlang.org/download/otp_win64_18.1.exe
+   http://www.erlang.org/download/otp_doc_html_18.1.tar.gz 
+   http://www.erlang.org/download/otp_doc_man_18.1.tar.gz
+
+
+* Erlang/OTP 18.0 has been released 
+** Some highlights of the release are:
+   Starting from 18.0 Erlang/OTP is released under the Apache License 2.0
+   erts: The time functionality has been extended. This includes a new API for 
+   time, as well as "time warp" modes which alters the behavior when system time changes.
+   You are strongly encouraged to use the new API instead of the old API based on erlang:now/0.
+   erlang:now/0 has been deprecated since it is a scalability bottleneck. 
+   http://www.erlang.org/doc/apps/erts/time_correction.html
+   erts: Beside the API changes and time warp modes a lot of scalability and
+   performance improvements regarding time management has been made.
+   Examples are: 
+   scheduler specific timer wheels, 
+   scheduler specific BIF timer management, 
+   parallel retrieval of monotonic time and system time on OS:es that support it.
+   erts: The previously introduced "eager check I/O" feature is now enabled by default.
+   erts/compiler: enhanced support for maps. Big maps new uses a HAMT (Hash Array Mapped Trie) representation internally which makes them more efficient.
+   There is now also support for variables as map keys.  
+   dialyzer: The -dialyzer() attribute can be used for suppressing warnings 
+   in a module by specifying functions or warning options. 
+   It can also be used for requesting warnings in a module.
+   ssl: Remove default support for SSL-3.0 and added padding check for TLS-1.0 due to the Poodle vulnerability.
+   ssl: Remove default support for RC4 cipher suites, as they are consider too weak.
+   stdlib: Allow maps for supervisor flags and child specs
+   stdlib: New functions in ets:take/2. Works the same as ets:delete/2 but also returns the deleted object(s).
+   ets:update_counter/4 with a default object as argument
+   更多信息：http://www.erlang.org/download/otp_src_18.0.readme
+
+
+* Erlang/OTP 17.5 has been released 
+
+** Some highlights of the release are:
+   ERTS: Added command line argument option for setting the initial size of process dictionaries.
+   增加了一个参数设置进程字典的初始化大小。
+   Diameter: configurable incoming_max len and string_decode for diameter messages
+   Bugfixes and minor small features in applications such as compiler, common_test, crypto, debugger,
+   eldap, erts, hipe, inets, ssh, ssl, ...
+   更多信息：http://www.erlang.org/download/otp_src_17.5.readme
+   完成的源码：http://www.erlang.org/download/otp_src_17.5.tar.gz
+   GitHub： https://github.com/erlang/otp tagged "OTP-17.5"
+   http://www.erlang.org/download/otp_win32_17.5.exe
+   http://www.erlang.org/download/otp_win64_17.5.exe
+   http://www.erlang.org/download/otp_doc_html_17.5.tar.gz 
+   http://www.erlang.org/download/otp_doc_man_17.5.tar.gz
+
+
+* Erlang/OTP 18.0-rc1 is available for testing, 26 Mar 2015
+
+** IMPORTANT INFO when building your own code with this OTP release
+   Since erlang:now is deprecated your build might stop if you are using "warnings as errors".
+   To let the build through you can turn of warnings for deprecated functions by setting an environment variable like this:
+   不提示弃用的函数：能够顺利编译
+   export ERL_COMPILER_OPTIONS=nowarn_deprecated_function
+
+** Some highlights of the release are:重要的更新
+   dialyzer: The -dialyzer() attribute can be used for suppressing warnings in a module by specifying functions or warning options.
+   透析器在模块中通过特定的函数或者参数可以屏蔽警告。
+   It can also be used for requesting warnings in a module.
+   也可以在模块中用来请求警告。
+   erts: The time functionality has been extended. 
+   时间函数扩展。
+   This includes a new API for time, as well as "time warp" modes which alters the behavior when system time changes.
+   新的时间API，以及当系统时间改变的时候，时间扭曲（时间隧道）模式会改变行为。强烈推荐新的函数替换erlang:now(),存在扩展瓶颈。
+   You are strongly encouraged to use the new API instead of the old API based on erlang:now/0. 
+   erlang:now/0 has been deprecated(弃用) since it will always be a scalability bottleneck(扩展瓶颈).
+   更多时间的内容：http://www.erlang.org/documentation/doc-7.0-rc1/erts-7.0/doc/html/time_correction.html
+
+   在API的修改和时间隧道模式的很多扩展的旁边，还有关于时间管理性能的提高。
+   erts: Beside the API changes and time warp modes a lot of scalability and performance improvements regarding time management has been made.
+   Examples are: 
+   scheduler specific timer wheels,调度器特定定时器的轮转
+   scheduler specific BIF timer management,调度器特殊BIF定时器的管理
+   parallel retrieval of monotonic time and system time on OS:es that support it.并行的检索单调时间和系统时间
+   单调时间（monotonic time）：系统开机后一直递增的时间
+   erts: The previously introduced "eager check I/O" feature is now enabled by default.
+   erts/compiler: enhanced support for maps.
+   Big maps new uses a HAMT (Hash Array Mapped Trie:散列树主映射查找树) representation internally which makes them more efficient.
+   There is now also support for variables as map keys.支持变量作为map的键
+   ssl: Remove default support for SSL-3.0 and added padding check for TLS-1.0 due to the Poodle vulnerability.
+   ssl: Remove default support for RC4 cipher suites, as they are consider too weak.
+   stdlib: Allow maps for supervisor flags and child specs:允许map作为监控者的标识和子进程格式
+
+   更多的信息： http://www.erlang.org/download/otp18rc1_relnotes.pdf
+   版本下载：https://github.com/erlang/otp/tree/OTP-18.0-rc1
+   文档：http://www.erlang.org/documentation/doc-7.0-rc1/doc/
+
+   
+* Erlang OTP 17.1 has been released 
+  
+** Some highlights of the release are:
+   crypto: Add aes_cfb8 cypher to crypto:block_encrypt and block_decrypt(块加密和解密).
+   diameter: Add result code counters for CEA, DWA, and DPA.加入返回结果
+   erts: The following built in functions in the erlang and binary modules now bump
+   an appropriate amount of reductions and yield when out of reductions:
+   binary_to_list/1, binary_to_list/3, bitstring_to_list/1, list_to_binary/1, 
+   iolist_to_binary/1, list_to_bitstring/1, binary:list_to_bin/1
+   hipe: Handle Maps instructions get_map_elements, put_map_assoc, put_map_exact in the HiPE native code compiler.
+   mnesia: The time for inserting locks for a transaction with large number of locks is reduced significantly.
+   ssh: Option max_sessions added to ssh:daemon/{2,3}.
+   stdlib: Add maps:get/3 to maps module. The function will return the supplied default value if the key does not exist in the map.
+   Many thanks to 24 different contributors in this release
+
+   You can find more info and download the release at the download page.
+
+
+* Erlang/OTP 17.0-rc2 has been released 
+
+  The release contains many changes and a few potential incompatibilities(潜在的不一致的).
+
+** OTP-11719 == erts ==
+
+   default encoding of Erlang files changed from ISO-8859-1 to UTF-8.
+
+   If your (ISO-8559-1 / Latin-1 encoded) source code files contain characters that are outside of the bit 7-bit ASCII character set,
+   you will receive a compiler error similar to the following:
+
+   tst.erl:1: cannot parse file, giving up
+   tst.erl:1: no module definition
+   tst.erl:1: cannot translate from UTF-8
+   解决方法：
+   Alternative 1: 换成新的字符集，在文件第一行加入：%% -*- coding: utf-8 -*-
+   Alternative 2: 保留旧的字符集，在文件第一行加入：%% -*- coding: latin-1 -*-
+   更多的信息查看:STDLIB User's Guide-Using Unicode in Erlang
+
+   更多更新内容：http://www.erlang.org/download/otp_src_17.0-rc2.readme
+
+
+* Erlang/OTP 17.0-rc1 has been released
+
+** map
+   no variable keys are allowed：map不允许变量键
+   native code can not be generated for modules using maps；无法编程成本地代码
+   新的数据类型：Map，文档https://www.erlang.org/eeps/eep-0043.html
+
+** 其他特性：
+   Maps, a new dictionary data type (experimental);实验新的数据类map
+   A more natural mapping from ASN.1 OCTET STRING and BIT STRING to Erlang types,
+   and other ASN.1 improvements and optimizations;
+   The {active, N} socket option for TCP, UDP, and SCTP;新的协议参数设置，可以指定接受多少条数据信息{active,0}={active,false}
+   A new (optional) scheduler utilization balancing mechanism：一个新的可选的调度平衡机制
+   Migration of memory carriers has been enabled by default on all ERTS internal memory allocators:
+   Increased garbage collection tenure rate：提高垃圾回收的占有率
+   Experimental "dirty schedulers" functionality：实验脏调度器的函数
+   Funs can now be given names：函数现在可以个名字
+   Miscellaneous unicode support enhancements:各种编码支持加强：ISO-8859-1 to UTF-8.
+   更加详细的更新信息：
+   http://www.erlang.org/download/otp_src_17.0-rc1.readme
+   http://www.erlang.org/download/otp_doc_html_17.0-rc1.tar.gz 
+   http://www.erlang.org/download/otp_doc_man_17.0-rc1.tar.gz
+
+
+* 时间的修正
+  旧的会被兼容，但是建议用新的api
+  旧的存在瓶颈，新的可以自动伸缩和性能提高
+  multi time warp mode：提高精度和精确的时间测量
+
+  术语：
+  Erlang/OS system time：系统时间
+  Erlang/OS monotonic time：单调递增时间
+
+  
+  time warp：时间隧道
+
+  globally accepted terminology（全局接受的术语）
+
+
+** 术语
+   monotonically increasing：单调递增时间
+   In a monotonically increasing sequence of values, all values that have a predecessor are either larger than, or equal to its predecessor.
+   顺序增加的一个值，所有的值都比之前的大或者相等
+
+   Strictly Monotonically Increasing：严格单调递增时间
+   In a strictly monotonically increasing sequence of values, all values that have a predecessor are larger than its predecessor.
+   顺序增加的一个值，所有的值都比之前的大
+
+   UT1:
+   Universal Time. Based on the rotation of the earth. Conceptually mean solar time at 0° longitude.
+   普通时间，根据地球的旋转,太阳时在0度经纬上
+
+   UTC:世界调整时间
+   Coordinated Universal Time. UTC almost align with UT1, however, 
+   UTC uses the SI definition of a second which is not exactly of the same length as the second used by UT1. This means that UTC slowly drifts from UT1.
+   In order to keep UTC relatively in sync with UT1, leap seconds are inserted, and potentially also deleted. That is, an UTC day may be 86400, 86401, or 86399 seconds long.
+
+   POSIX Time:可移植性操作系统接口时间
+   Time since Epoch新纪元. Epoch is defined定义 to be 00:00:00 UTC, January 1, 1970.1970年1月1号0点0分0秒开始
+   A day in POSIX time is defined to be exactly 86400 seconds long. 
+   Strangely enough Epoch is defined to be a time in UTC, and UTC have another definition of how long a day is.
+   非常奇怪，新纪元定义在世界调整时间上，但是世界调整时间的另外一个定时是一天多长。
+   Quoting引用 the Open Group "POSIX time is therefore not necessarily UTC, despite its appearance".
+   The effect of this is that when   影响
+   an UTC leap second is inserted, POSIX time either stops for a second, or repeats the last second.
+   是UTC闰秒是插入一秒，POSIX time会停止1s或者重复执行最后一s
+   If an UTC leap second would be deleted (has never happened yet), POSIX time would make a one second leap forward.
+   相反，但是没有发生过
+
+   Time Resolution:时间分辨率
+   当读时间的时候能够区别时间的最小间隔
+   The shortest time interval that can be distinguished when reading time values.
+
+   Time Precision:时间精度
+   The shortest time interval that can be be distinguished repeatedly(重复地) and reliably(可靠的) when reading time values.
+   Precision is limited by the resolution, but resolution and precision might differ significantly(显著地).
+   
+   
+   Time Accuracy:时间精确度
+   The correctness of time values.正确的时间值
+
+   Time Warp：时间隧道
+   A time warp is a leap forwards or backwards in time.一个时间隧道是指在时间里向前跳跃或者向后跳跃。
+   That is, the difference of time values taken before and after the time warp will not correspond to the actual elapsed time.
+   就是说，之前和之后的时间值的差异时间隧道不会对应于实际的运行时间。
+
+
+   OS System Time:操作系统时间
+   The operating systems view of POSIX time. It can be retrieved(恢复) by calling os:system_time().能够恢复通过调用os:system_time().
+   This may or may not be an accurate view of POSIX time.，不准确的
+   This time may typically be adjusted both backwards and forwards without limitation.可以向前和可以向后的调整，没有限制
+   That is, time warps may be observed. 也就是说，时间扭曲可以观察到的
+   You can get information about the Erlang runtime system's source of OS system time by calling erlang:system_info(os_system_time_source).
+
+   OS Monotonic Time 系统单调递增时间
+   A monotonically increasing time provided by the operating system.系统提供的
+   This time does not leap and have a relatively steady frequency although not completely correct.
+   这个时间不会发生跳跃，并且有一个相当稳定的频率尽管不是完全正确的。
+   However, it is not uncommon that the OS monotonic time stops if the system is suspended.
+   This time typically increase since some unspecified point in time that is not connected to OS system time.
+   Note that this type of time is not necessarily provided by all operating systems. 
+   You can get information about the Erlang runtime system's source of OS monotonic time by calling erlang:system_info(os_monotonic_time_source).
+
+   Erlang System Time
+   The Erlang runtime systems view of POSIX time. It can be retrieved by calling erlang:system_time(). 
+   This time may or may not be an accurate view of POSIX time(或者或者不是一个精确的时间), and may or may not align(同步或者不同步) with OS system time. 
+   The runtime system works towards aligning the two system times(朝两个系统时间同步). 
+   Depending on time warp mode used, this may be achieved by letting the Erlang system time perform a time warp.
+   根据时间隧道模式的使用，让EST执行一个时间隧道，这个有可能完成？？？？(朝两个系统时间同步)
+
+   Erlang Monotonic Time:erlang 递增时间
+   A monotonically increasing time provided by the Erlang runtime system. 
+   The Erlang monotonic time increase since some unspecified point in time.
+   It can be retrieved by calling erlang:monotonic_time().
+   The accuracy, and precision of Erlang monotonic time heavily depends on the accuracy and precision of OS monotonic time,
+   erlang的递增时间的准确性和精度根据系统的递增时间来确定。
+   the accuracy and precision of OS system time as well as on the time warp mode used. 
+   On a system that is lacking（缺少） OS monotonic time, the Erlang monotonic time can only guarantee monotonicity只能保证递增
+   and can more or less not give any other guarantees.不能再保证其他的。
+   The frequency adjustments made to the Erlang monotonic time depends on the time warp mode used.
+   递增的频率是根据时间隧道使用模式来确定的。
+
+   Internally in the runtime system the Erlang monotonic time is the "time engine" :运行时系统内部，erlang递增时间是时间引擎，时间的所有操作都有关系
+   that is used for more or less everything that has anything to do with time.
+   All timers regardless of it is a receive ... after timer, BIF timer, or a timer in the timer module 
+   所有的时间定时器都是根据erlang递增时间来触发的。
+   are triggered relative Erlang monotonic time.
+   Even Erlang system time is based on Erlang monotonic time.甚至erlang系统时间也是根据erlang递增时间。
+   By adding current Erlang monotonic time with current time offset you get current Erlang system time.
+   通过添加正确的erlang递增时间和正确的时间偏移，可以得到正确的erlang系统时间。
+   Current time offset can be retrieved by calling erlang:time_offset/0.
+   正确的偏移量可以通过调用erlang:time_offset/0得到。
+
+
+   2.3  Introduction介绍
+
+   Time is vital至关重要的 to an Erlang program and, more importantly, correct time is vital to an Erlang program.
+   As Erlang is a language with soft real time properties and we have the possibility to express time in our programs,
+   the Virtual Machine and the language has to be very careful about what is considered a correct point in time and in how time functions behave.
+
+   In the beginning, Erlang was constructed assuming that the wall clock time in the system
+   showed a monotonic time moving forward at exactly the same pace(步调) as the definition of time.
+   That more or less meant that an atomic clock (or better) was expected(预期) to be attached to your
+   hardware and that the hardware(计算机硬件) was then expected to be locked away from any human tinkering (or unearthly(怪异的，可怕的))
+   for all eternity(不朽的，永恒的). While this might be a compelling thought(引人关注的思考), it's simply never the case(只是永远如此).
+
+   A "normal" modern computer can not keep time.
+   Not on itself and not unless you actually have a chip level atomic clock wired to it.
+   Time, as perceived by your computer, will normally need to be corrected.
+   Hence the NTP protocol that together with the ntpd process will do it's best to keep your computers time in sync with the "real" time in the universe. 
+   Between NTP corrections, usually a less potent time-keeper than an atomic clock（原子钟） is used.
+   在NTP修正之前，一个有效的时间维持者会比一个原子钟更加有效。
+
+   But NTP is not fail safe. 是不安全的
+   The NTP server can be unavailable,服务不可用， 配置不正确the ntp.conf can be wrongly configured or 
+   your computer may from time to time be disconnected from the internet. 网络不通
+
+   Furthermore you can have a user (or even system administrator) on your system that 
+   thinks the right way to handle daylight saving time is to adjust the clock one hour two times a year (a tip, that is not the right way to do it...).
+   To further complicate things, this user fetched your software from the internet and has never ever thought about what's the correct time as perceived by a computer.
+   The user simply does not care about keeping the wall clock in sync with the rest of the universe.
+   The user expects your program to have omnipotent(全能的，无所不能的) knowledge about the time.
+
+   Most programmers also expect time to be reliable, at least until they realize that the wall clock time on their workstation is of by a minute.
+   Then they simply set it to the correct time, maybe or maybe not in a smooth way. Most probably not in a smooth way.
+
+   The amount of problems that arise when you expect the wall clock time on the system to always be correct may be immense巨大的.
+   Therefore Erlang introduced the "corrected estimate of time(时间的纠正预估)", or the "time correction" many years ago. 
+   The time correction relies(信任) on the fact that most operating systems have some kind of monotonic clock,
+   either a real time extension or some built in "tick滴答 counter" that is independent of the wall clock settings（独立的墙钟的设置）. 
+   This counter may have microsecond resolution(分辨率) or much less, but generally it has a drift that is not to be ignored.
+
+   2.4  Time Correction时间修正
+   If time correction is enabled, the Erlang runtime system will make use of both OS system time and OS monotonic time,
+   in order to make adjustments of the frequency of the Erlang monotonic clock.
+   Time correction will ensure that Erlang monotonic time will not warp(不会扭曲), and that the frequency is relatively accurate(相当准确).
+   The type of adjustments made to the frequency depends on the time warp mode used. 
+   This will be discussed in more details in the time warp modes section below.
+
+   By default time correction will be enabled if support for it on the specific platform exist. 
+   Support for it includes both an OS monotonic time provided by the OS, 
+   and an implementation in the Erlang runtime system utilizing the OS monotonic time.
+   You can check if your system has support for OS monotonic time by calling erlang:system_info(os_monotonic_time_source),
+   and you can check if time correction is enabled on your system by calling erlang:system_info(time_correction).
+
+   
+   Time correction is enabled or disabled by passing the +c [true|false] command line argument to erl.
+
+   If time correction is disabled, Erlang monotonic time may warp forwards, it may stop and even freeze for extended periods of time,
+   and there are no guarantees(保证) that the frequency of the Erlang monotonic clock is accurate or stable.
+
+   You typically never want to disable time correction. Previously there was a performance penalty associated with time correction,
+   but nowadays it is most often the other way around. By disabling time correction you are likely to get bad scalability(扩展性),
+   bad performance, and bad time measurements.
+
+   2.5  Time Warp Safe Code时间隧道安全代码
+
+   Time warp safe code is code that is able to handle a time warp of Erlang system time.
+
+   erlang:now/0 behaves very bad when Erlang system time warps.
+   When Erlang system time do a time warp backwards, the values returned from erlang:now/0 will freeze
+   (if you disregard the micro second increments made due to the actual call) 
+   until OS system time reach the point of the last value returned by erlang:now/0.
+   This freeze might continue for very long periods of time.
+   It might take years, decades, and even longer than this until the freeze stops.
+
+   All uses of erlang:now/0 are not necessarily time warp unsafe. If you do not use it to get time,
+   it will be time warp safe. However all uses of erlang:now/0 are suboptimal(次优) from a performance and scalability perspective.
+   So you really want to replace the usage of it with other functionality. 
+
+   For examples of how to replace the usage of erlang:now/0, see the Dos and Donts section.
+
+   2.6  Time Warp Modes时间隧道模式
+
+   Current Erlang system time is determined决定 by adding current Erlang monotonic time with current time offset. 
+   The time offset（时间偏移） is managed differently depending on which time warp mode you use.
+   The time warp mode is set by passing the +C [no_time_warp|single_time_warp|multi_time_warp] command line argument to erl.
+
+   No Time Warp Mode:没有时间隧道模式
+   The time offset is determined at runtime system start and will after this not change.
+   系统启动之后不会改变。
+   This is the default behavior. Not because it is the best mode (which it isn't).
+   It is default only because this is how the runtime system always has behaved up until ERTS version 7.0, 
+   and you have to ensure that your Erlang code that may execute during a time warp is time warp safe before you can enable other modes.
+
+   Since the time offset is not allowed to change, time correction needs to adjust the frequency of the Erlang monotonic clock 
+   in order to smoothly align(顺利对齐) Erlang system time with OS system time.
+   A big downside(缺点) of this approach方法 is that we on purpose(有目的) will use a faulty(错误) frequency on the Erlang monotonic clock if adjustments are needed.
+   This error may be as big as 1%. This error will show up in all time measurements(测量) in the runtime system.
+
+   If time correction is not enabled, the Erlang monotonic time will freeze when the OS system time leap backwards(跳后)就是时间往回调. 
+   The freeze of the monotonic time will continue until OS system time catch up. The freeze may continue for a very long time.
+   When OS system time leaps forwards, Erlang monotonic time will also leap forward.
+
+   Single Time Warp Mode：单隧道时间模式
+   This mode is more or less a backwards compatibility mode(向后兼容模式) as of its introduction.
+   On an embedded system(嵌入式系统) it is not uncommon that the system has no power supply at all, not even a battery, when it is shut off.
+   The system clock on such a system will typically代表性 be way off when the system boots.
+   If the no time warp mode is used, and the Erlang runtime system is started before the OS system time has been corrected,
+   the Erlang system time may be wrong for a very long time, even centuries or more.
+   如果在Os系统时间正确的之前，ert系统启动了，使用no time warp mode，erlang系统时间会有可能错误很长一段时间，甚至一个世纪，或者更长。
+
+   If you for some reason need to use Erlang code that is not time warp safe, 
+   and you need to start the Erlang runtime system before the OS system time has been corrected,
+   you may want to use the single time warp mode.
+   Note that there are limitations to when you can execute time warp unsafe code using this mode.
+   If it is possible to only utilize利用 time warp safe code, it is much better to use the multi time warp mode instead.
+
+   Using the single time warp mode, the time offset is handled in two phases（两个时期）:时间偏移量
+
+   Preliminary Phase:准备阶段
+   The preliminary phase starts when the runtime system starts.erlang运行时系统启动时期，这一时期的时间偏移量根据Os系统时间决定。
+   A preliminary time offset based on current OS system time is determined.
+   This offset will from now on be fixed during the whole preliminary phase.这个偏移量从现在开始，在整个时间都会被调整。
+
+   If time correction is enabled, adjustments to the Erlang monotonic clock will be made to keep its frequency as correct as possible, 
+   but no adjustments will be made trying to align Erlang system time and OS system time. 
+   That is, during the preliminary Erlang system time and OS system time might diverge from each other（彼此分开的）, and no attempt to prevent this will be made.
+
+   If time correction is disabled, changes in OS system time will effect the monotonic clock the same way as when the no time warp mode is used.
+
+   Final Phase：最终时期
+   The final phase begin when the user finalize the time offset by calling erlang:system_flag(time_offset, finalize). The finalization can only be performed once.
+
+   During finalization, the time offset is adjusted and fixated so that current Erlang system time align with current OS system time.
+   Since the time offset may change during the finalization, the Erlang system time may do a time warp at this point.
+   The time offset will from now on be fixed until the runtime system terminates. 
+   If time correction has been enabled, the time correction will from now on also make adjustments 
+   in order to align Erlang system time with OS system time. 
+   When the system is in the final phase it behaves exactly as in the no time warp mode.
+
+
+   %% 
+   In order for this to work properly there are two requirements that the user needs to ensure are satisfied:
+
+   Forward Time Warp
+   The time warp made when finalizing the time offset can only be done forwards without encountering problems. 
+   This implies that the user has to ensure that the OS system time is set to a time earlier or
+   equal to actual POSIX time before starting the Erlang runtime system.
+   If you are not completely sure the OS system time is correct, 
+   set it to a time that is guaranteed to be earlier than actual POSIX time before starting the Erlang runtime system just to be safe.
+
+   Finalize Correct OS System Time
+   The OS system time needs to be correct when the the user finalizes the time offset.
+
+   If these requirements are not fulfilled(实现), the system may behave very bad.
+
+   Assuming that the requirements above are fulfilled, time correction is enabled,
+   and that the OS system time is adjusted using some time adjustment protocol like NTP or similar,
+   only small adjustments of the Erlang monotonic time should be needed in order to keep system times aligned after finilization.
+   As long as the system is not suspended, the largest adjustments needed should be for inserted (or deleted) leap seconds.
+
+   Warning
+   In order to be able to use this mode you have to ensure that all Erlang code that will execute in both phases are time warp safe.
+
+   Code that only execute in the final phase does not have to be able to cope with the time warp.
+
+   
+   Multi Time Warp Mode:多时间隧道模式
+
+   Multi time warp mode in combination结合 with time correction is the preferred configuration.
+   This since, on almost all platforms, the Erlang runtime system
+   will have better performance,
+   will scale better,
+   will behave better, 
+   and since the accuracy, 
+   and precision of time measurements will be better.
+   Only Erlang runtime systems executing on ancient platforms will benefit from another configuration.
+   The time offset may change at any time without limitations.
+   That is, Erlang system time may perform time warps both forwards and backwards at any time.
+   Since we align the Erlang system time with the OS system time by changing the time offset, 
+   we can enable a time correction that tries to adjust the frequency of the Erlang monotonic clock to be as correct as possible. 
+   This will make time measurements using the Erlang monotonic time more accurate and precise.
+
+   If time correction is disabled, Erlang monotonic time will leap forward if OS system time leaps forward.
+   If the OS system time leaps backwards, Erlang monotonic time will stop briefly(短暂的) but it does not freeze for extended periods of time.
+   This since the time offset is changed in order to align Erlang system time with OS system time.
+
+   Warning
+   In order to be able to use this mode you have to ensure that all Erlang code that will execute on the runtime system is time warp safe.
+
+
+   
+   2.7  The New Time API:新的api
+
+   The old time API is based on erlang:now/0. The major issue with erlang:now/0 is that it was intended to be used for so many unrelated things.
+   This tied these unrelated operations together and unnecessarily caused performance, scalability as well as accuracy,
+   and precision issues for operations that do not need to have such issues.
+   The new API spreads different functionality over multiple functions in order to improve on this.
+
+   In order to be backwards compatible erlang:now/0 will remain as is, but you are strongly discouraged from using it. 
+   A lot of uses of erlang:now/0 will also prevent you from using the new multi time warp mode which is an important part of this new time functionality improvement.
+
+   Some of the new BIFs on some systems, perhaps surprisingly, return negative integer values on a newly started run time system. This is not a bug, but a memory usage optimization.
+
+   The new API consists of a number of new BIFs:
+
+   erlang:convert_time_unit/3
+
+   erlang:monotonic_time/0
+
+   erlang:monotonic_time/1
+
+   erlang:system_time/0
+
+   erlang:system_time/1
+
+   erlang:time_offset/0
+
+   erlang:time_offset/1
+
+   erlang:timestamp/0
+
+   erlang:unique_integer/0
+
+   erlang:unique_integer/1
+
+   os:system_time/0
+
+   os:system_time/1
+
+   and a number of extensions of existing BIFs:
+
+   erlang:monitor(time_offset, clock_service)
+
+   erlang:system_flag(time_offset, finalize)
+
+   erlang:system_info(os_monotonic_time_source)
+
+   erlang:system_info(os_system_time_source)
+
+   erlang:system_info(time_offset)
+
+   erlang:system_info(time_warp_mode)
+
+   erlang:system_info(time_correction)
+
+   erlang:system_info(start_time)
+
+   erlang:system_info(end_time)
+
+   The New Erlang Monotonic Time
+
+   The Erlang monotonic time as such is new as of ERTS version 7.0. It has been introduced in order to be able to detach time measurements such as elapsed time from calender time. It is very common that one is interested in measuring elapsed time or specifying a time relative to another point in time without having any need to know what the involved times are in UTC or any other globally defined time scale. By introducing a time scale that has a local definition of where it starts, it is possible to manage time that do not concern calender time on that time scale. Erlang monotonic time use such a time scale with a locally defined start.
+
+   The introduction of Erlang monotonic time gives us the possibility to adjust the two Erlang times (Erlang monotonic time and Erlang system time) separately. By doing this, accuracy of elapsed time does not have to suffer just because the system time happened to be wrong at some point in time. Separate adjustments of the two times are only performed in the time warp modes, and only fully separated in the multi time warp mode. All other modes than the multi time warp mode are there for backwards compatibility reasons, and when using these the accuracy of Erlang monotonic time suffer since the adjustments of Erlang monotonic time in these modes are more or less tied to the Erlang system time.
+
+   The adjustment of system time could have been made smother than using a time warp approach, but we think that would be a bad choice. Since we are able to express and measure time that aren't connected to calender time by the use of Erlang monotonic time, it is better to expose the change in Erlang system time immediately. This since it makes it possible for the Erlang applications executing on the system to react on the change in system time as soon as possible. This is also more or less exactly how most OSes handle this (OS monotonic time and OS system time). By adjusting system time smoothly we would just hide the fact that system time changed and make it harder for the Erlang applications to react to the change in a sensible way.
+
+   In order to be able to react to a change in Erlang system time you have to be able to detect that it happened. The change in Erlang system time occurs when current time offset is changed. We have therefore introduced the possibility to monitor the time offset using erlang:monitor(time_offset, clock_service). A process monitoring the time offset will be sent a message on the following format when the time offset is changed:
+
+   {'CHANGE', MonitorReference, time_offset, clock_service, NewTimeOffset}
+   Unique Values
+
+   Besides reporting time erlang:now/0 also produce unique and strictly monotonically increasing values. In order to detach this functionality from time measurements we have introduced erlang:unique_integer().
+
+   Dos and Don'ts
+
+   Previously erlang:now/0 was the only option for doing quite a lot of things. We will look at a few different things erlang:now/0 could be used for, and how you want to do this using the new API:
+
+   Retrieve Erlang System Time
+
+   Don't
+   use erlang:now/0 in order to retrieve current Erlang system time.
+
+   Do
+   use erlang:system_time/1 in order to retrieve current Erlang system time on the time unit of your choice.
+
+   If you want the same format as returned by erlang:now/0, use erlang:timestamp/0.
+
+   Measure Elapsed Time
+
+   Don't
+   take timestamps with erlang:now/0 and calculate the difference in time with timer:now_diff/2.
+
+   Do
+   take timestamps with erlang:monotonic_time/0 and calculate the time difference using ordinary subtraction. The result will be in native time unit. If you want to convert the result to another time unit you can do this using erlang:convert_time_unit/3.
+
+   Another easier way of doing this is to use erlang:monotonic_time/1 with desired time unit. However, you may lose accuracy, and precision this way.
+
+   Determine Order of Events
+
+   Don't
+   determine the order of events by saving a timestamp with erlang:now/0 when the event happens.
+
+   Do
+   determine the order of events by saving the integer returned by erlang:unique_integer([monotonic]) when the event happens. These integers will be strictly monotonically ordered on current runtime system instance corresponding to creation time.
+
+   Determine Order of Events With Time of the Event
+
+   Don't
+   determine the order of events by saving a timestamp with erlang:now/0 when the event happens.
+
+   Do
+   determine the order of events by saving a tuple containing monotonic time and a strictly monotonically increasing integer like this:
+
+   Time = erlang:monotonic_time(),
+   UMI = erlang:unique_integer([monotonic]),
+   EventTag = {Time, UMI}
+   These tuples will be strictly monotonically ordered on the current runtime system instance according to creation time. Note that it is important that the monotonic time is in the first element (the most significant element when comparing 2-tuples). Using the monotonic time in the tuples, you can calculate time between events.
+
+   If you are interested in the Erlang system time at the time when the event occurred you can also save the time offset before or after saving the events using erlang:time_offset/0. Erlang monotonic time added with the time offset corresponds to Erlang system time.
+
+   If you are executing in a mode where time offset may change and you want to be able to get the actual Erlang system time when the event occurred you can save the time offset as a third element in the tuple (the least significant element when comparing 3-tuples).
+
+   Create a Unique Name
+
+   Don't
+   use the values returned from erlang:now/0 in order to create a name unique on the current runtime system instance.
+
+   Do
+   use the value returned from erlang:unique_integer/0 in order to create a name unique on the current runtime system instance. If you only want positive integers, you can use erlang:unique_integer([positive]).
+
+   Seed Random Number Generation With a Unique Value
+
+   Don't
+   seed random number generation using erlang:now().
+
+   Do
+   seed random number generation using a combination of erlang:monotonic_time(), erlang:time_offset(), erlang:unique_integer(), and other functionality.
+
+   To sum this section up: Don't use erlang:now/0!
+
+   2.8  Supporting Both New and Old OTP Releases
+
+   Your code may be required to be able to run on a variety of OTP installations of different OTP releases. If so, you can not just use the new API out of the box, since it will not be available on old pre OTP 18 releases. The solution is not to avoid using the new API, since your code then won't be able to benefit from the scalability and accuracy improvements made. Instead you want to use the new API when available, and fall back on erlang:now/0 when it is not available. Fortunately almost all of the new API can easily be implemented using existing primitives (except for erlang:system_info(start_time), erlang:system_info(end_time), erlang:system_info(os_monotonic_time_source), and erlang:system_info(os_system_time_source)). By wrapping the API with functions that fall back on erlang:now/0 when the new API is not available, and using these wrappers instead of using the API directly the problem is solved. These wrappers can for example be implemented as in $ERL_TOP/erts/example/time_compat.erl.
