@@ -18,25 +18,44 @@ do(Mod) ->
     
 
 turn(M, P) ->
-    P1 = binary_to_list(iolist_to_binary(re:replace(filename:join(
-                                                      %% 目录路径去掉文件名P = path
-                                                      filename:dirname(P),
-                                                      %% 
-                                                      filename:basename(P, ".beam")), "ebin", "src"))),
+    %% 目录路径去掉文件名P = path
+    Path = filename:dirname(P),
+    MName = filename:basename(P, ".beam"),
+    MPath = binary_to_list(iolist_to_binary(re:replace(filename:join(Path, MName), "ebin", "src"))),
+    %% 模块信息
     L = M:module_info(),
     COpts = get_compile_options(L),
-    COpts1 = lists:foldr(
+    %% 新的编译参数
+    NewCOpts = lists:foldr(
                fun({K, V}, Acc) when is_list(V) and is_integer(hd(V)) ->
-                       [{K, tr(V)}] ++ Acc ; (Skip, Acc) -> Acc ++ [Skip]
+                       if
+                           K == outdir ->
+                               [{K, Path}] ++ Acc;
+                           true ->
+                               [{K, tr(V)}] ++ Acc 
+                       end;
+                  (Skip, Acc) ->
+                       Acc ++ [Skip]
                end,
                [], COpts),
-    A = c:c(P1, COpts1 ++ [native, "{hipe, [o3]}"]),
-    io:format("~p ~pP1 A=~p~n", [?MODULE, ?LINE, [P1, A]]).
-    
+
+    case lists:member(native, NewCOpts) of 
+        false -> %% 编译选项：time, eprof可以统计编译时间
+            c:c(MPath, NewCOpts ++ [native, "{hipe, [o3]}"]);
+        true ->
+            c:c(MPath, NewCOpts -- [native, "{hipe, [o3]}"])
+    end.
+
+%% bject file: /usr/local/lib/erlang/lib/stdlib-3.3/ebin/lists.beam
+%% Compiler options:  [{outdir,"/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21/otp_src_19/lib/stdlib/src/../ebin"},
+%%                     {i,"/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21/otp_src_19/lib/stdlib/src/../include"},
+%%                     {i,"/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21/otp_src_19/lib/stdlib/src/../../kernel/include"},
+%%                     warnings_as_errors,debug_info]
 tr(P)->
-    io:format("~p ~p P=~p~n", [?MODULE, ?LINE, P]),
-    A = binary_to_list(iolist_to_binary(re:replace(P, "/root/Downloads/otp_src_R16B03-1/lib/stdlib/src/../ebin", "/root/erl_rebin"))),  %%%这个地方要根据实际情况调整 具体的参看 m(lists).
-    A.
+    Str = "/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21",
+    ReStr = "/root/heller",
+    %% m(lists),实际情况修改
+    binary_to_list(iolist_to_binary(re:replace(P, Str, ReStr))).
 
 get_compile_options(L) ->
     case get_compile_info(L, options) of
