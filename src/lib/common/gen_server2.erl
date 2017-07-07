@@ -612,7 +612,7 @@ unregister_name(_Name) -> ok.
 extend_backoff(undefined) ->
     undefined;
 extend_backoff({backoff, InitialTimeout, MinimumTimeout, DesiredHibPeriod}) ->
-    {backoff, InitialTimeout, MinimumTimeout, DesiredHibPeriod, now()}.
+    {backoff, InitialTimeout, MinimumTimeout, DesiredHibPeriod, now1()}.
 
 %%%========================================================================
 %%% Internal functions
@@ -680,7 +680,7 @@ wake_hib(GS2State = #gs2_state { timeout_state = TS }) ->
                         undefined ->
                             undefined;
                         {SleptAt, TimeoutState} ->
-                            adjust_timeout_state(SleptAt, now(), TimeoutState)
+                            adjust_timeout_state(SleptAt, now1(), TimeoutState)
                     end,
     %% 休眠苏醒后执行
     post_hibernate(drain(GS2State #gs2_state { timeout_state = TimeoutState1 })).
@@ -689,7 +689,7 @@ wake_hib(GS2State = #gs2_state { timeout_state = TS }) ->
 hibernate(GS2State = #gs2_state { timeout_state = TimeoutState }) ->
     TS = case TimeoutState of
              undefined             -> undefined;
-             {backoff, _, _, _, _} -> {now(), TimeoutState}
+             {backoff, _, _, _, _} -> {now1(), TimeoutState}
          end,
     %% 函数进入等待唤醒
     %% 把请求进程放进等待状态，然后等待分配的内存尽可能的减少。对于一个不想接受消息的进程来说很重要。
@@ -756,7 +756,8 @@ adjust_timeout_state(SleptAt, AwokeAt, {backoff, CurrentTO, MinimumTO,
             true -> lists:max([MinimumTO, CurrentTO div 2]);
             false -> CurrentTO
         end,
-    {Extra, RandomState1} = random:uniform_s(Base, RandomState),
+    %% {Extra, RandomState1} = random:uniform_s(Base, RandomState),
+    {Extra, RandomState1} = rand:uniform_s(Base, RandomState),
     CurrentTO1 = Base + Extra,
     {backoff, CurrentTO1, MinimumTO, DesiredHibPeriod, RandomState1}.
 
@@ -1356,3 +1357,6 @@ callback(Mod, FunName, Args, DefaultThunk) ->
                  end;
         false -> DefaultThunk()
     end.
+
+now1()->
+    erlang:timestamp().

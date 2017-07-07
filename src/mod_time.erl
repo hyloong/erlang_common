@@ -56,7 +56,7 @@ get_time3()->
 
 %%--------------------------------------------------------------------
 init([]) ->
-    NowTime = erlang:now(),
+    NowTime = erlang:timestamp(),
     Ref = erlang:send_after(?Time, self(), 'one_second'),
     State = #state{now_time = NowTime, time_ref = Ref},
     {ok, State}.
@@ -114,7 +114,7 @@ do_handle_call('get_time1', _From, State)->
     {reply, State#state.now_time, State};
 
 do_handle_call('get_time2', _From, State)->
-    {reply, erlang:now(), State};
+    {reply, erlang:timestamp(), State};
 
 do_handle_call('get_time3', _From, State)->
     {reply, os:timestamp(), State};
@@ -126,7 +126,7 @@ do_handle_cast(_Msg, State)->
     {noreply, State}.
 
 do_handle_info('one_second', State)->
-    NowTime = erlang:now(),
+    NowTime = erlang:timestamp(),
     Ref = erlang:send_after(?Time, self(), 'one_second'),
     {noreply, State#state{now_time = NowTime, time_ref = Ref}};
 
