@@ -1,3 +1,4 @@
+
 ---------------------------------------------------------------------
  --- HIGHLIGHTS ------------------------------------------------------
  ---------------------------------------------------------------------
@@ -6,13 +7,14 @@
                Related Id(s): OTP-10309
 
                *** POTENTIAL INCOMPATIBILITY ***
-
+               
                Improved unicode support for strings. Added
-               normalization functions in the unicode module. Extended
+               normalization正规的 functions in the unicode module. Extended
                the string module API with new functions with improved
-               unicode handling and that works on grapheme clusters.
+               unicode handling and that works on grapheme字母 clusters.
                The new functions operates on the unicode:chardata()
                type, thus they also accept UTF-8 binaries as input.
+               提高字符串的编码支持
 
                The old string API have been marked as obsolete. The
                return values have been changed for some error cases.
@@ -82,7 +84,7 @@
   OTP-14152    Application(s): erts
 
                *** POTENTIAL INCOMPATIBILITY ***
-
+               脏调度允许在smp模式使用
                Dirty schedulers are now enabled and supported on
                Erlang runtime systems with SMP support.
 
@@ -102,18 +104,18 @@
                statistics(total_active_tasks), etc.
 
 
-  OTP-14178    Application(s): compiler, erts
+  OTP-14178    Application(s):compiler, erts
 
                Atoms may now contain arbitrary Unicode characters.
 
 
   OTP-14183    Application(s): stdlib
-
+  
                gen_fsm is deprecated and is replaced by gen_statem,
                however for backwards compatibility reasons gen_fsm may
                continue to exist as an undocumented feature for quite
                some time.
-
+               
 
   OTP-14197    Application(s): ssl
 
@@ -125,10 +127,11 @@
                hostname can not be derived from the first argument to
                connnect or is not supplied by the server name
                indication option, the check will not be performed.
-
+               
+               所有粗暴的使用二进制的方法都被替换为erlang的引用
 
   OTP-14205    Application(s): erts
-
+  
                All uses of the magic binary kludge has been replaced
                by uses of erlang references.
 
@@ -218,7 +221,7 @@
 
                Various improvements of timer management internally in
                the VM. These improvements both reduced memory
-               consumption of timer wheels as well as reduce the
+               consumption of timer wheels as well as reduce the 减少循坏的内存消耗
                amount of work that has to be performed in order to
                handle timers.
 
