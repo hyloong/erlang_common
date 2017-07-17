@@ -46,13 +46,13 @@ turn(M, P) ->
             c:c(MPath, NewCOpts -- [native, "{hipe, [o3]}"])
     end.
 
-%% bject file: /usr/local/lib/erlang/lib/stdlib-3.3/ebin/lists.beam
-%% Compiler options:  [{outdir,"/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21/otp_src_19/lib/stdlib/src/../ebin"},
-%%                     {i,"/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21/otp_src_19/lib/stdlib/src/../include"},
-%%                     {i,"/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21/otp_src_19/lib/stdlib/src/../../kernel/include"},
-%%                     warnings_as_errors,debug_info]
+%% Compiled: No compile time info available
+%% Object file: /usr/local/lib/erlang/lib/stdlib-3.4/ebin/lists.beam
+%% Compiler options:  [debug_info,
+%%                     {i,"/net/isildur/ldisk/daily_build/20_prebuild_master-opu_o.2017-06-20_20/otp_src_20/lib/stdlib/src/../include"},
+%%                     {i,"/net/isildur/ldisk/daily_build/20_prebuild_master-opu_o.2017-06-20_20/otp_src_20/lib/stdlib/src/../../kernel/include"}]
 tr(P)->
-    Str = "/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2017-03-14_21",
+    Str = "/net/isildur/ldisk/daily_build/20_prebuild_master-opu_o.2017-06-20_20",
     ReStr = "/root/heller",
     %% m(lists),实际情况修改
     binary_to_list(iolist_to_binary(re:replace(P, Str, ReStr))).

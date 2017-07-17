@@ -16,7 +16,7 @@
 
                The old string API have been marked as obsolete. The
                return values have been changed for some error cases.
-               
+
 
   OTP-13820    Application(s): ssl
 
@@ -115,7 +115,7 @@
                some time.
 
 
-  OTP-14197    Application(s): ssl
+  OTP-14197    Application(s): ssl 复杂
 
                TLS client processes will by default call
                public_key:pkix_verify_hostname/2 to verify the
@@ -2796,4 +2796,3 @@
   OTP-14289    Application(s): wx
 
                Fix a livelock that could be caused by wx:batch/1.
-
