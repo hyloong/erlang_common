@@ -10,11 +10,22 @@
 -export([
          p/0,
          u/0,
-         cu/0
+         cu/0,
+         xu/0,
+         wu/0
         ]).
 
--define(NODE, 'yxyz10@192.168.5.59').
--define(CNODE, 'yxyz01@192.168.5.59').
+
+-define(NODE, 'yxyz10@192.168.5.49').
+
+-define(CNODE, 'yxyz01@192.168.5.49').
+
+%% 
+-define(LNODE, 'x_kfs110@192.168.5.206').
+
+
+-define(WNODE, 'x_kfs110@192.168.5.49').
+
 
 p()->
     net_adm:ping(?NODE).
@@ -24,6 +35,14 @@ u()->
 
 cu()->
     rpc:call(?CNODE, u, remote_load, []).
+
+xu()->
+    rpc:call(?LNODE, u, u, []).
+
+wu()->
+    rpc:call(?WNODE, u, u, []).
+
     
+
 
 
